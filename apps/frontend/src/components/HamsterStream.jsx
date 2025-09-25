@@ -1,82 +1,102 @@
-// HamsterStream.jsx
 import { useState } from "react";
 import MuxPlayer from "@mux/mux-player-react";
 
 export default function HamsterStream({ stream }) {
   const [isLive, setIsLive] = useState(false);
+  const [isBuffering, setIsBuffering] = useState(false);
 
   if (!stream) {
     return (
-      <div className="w-full h-full rounded-lg bg-gray-100 border border-gray-200 flex items-center justify-center">
-        <div className="text-center px-4 py-10">
-          <div className="text-5xl mb-2">🐹</div>
-          <h3 className="text-gray-900 font-semibold mb-1">Stream Unavailable</h3>
-          <p className="text-sm text-gray-600">This stream is currently offline.</p>
+      <div className="absolute inset-0 flex items-center justify-center rounded-lg border border-gray-200 bg-gray-100">
+        <div className="px-6 py-10 text-center">
+          <div className="mb-2 text-5xl">🐹</div>
+          <h3 className="mb-1 font-semibold text-gray-900">
+            Stream unavailable
+          </h3>
+          <p className="text-sm text-gray-600">
+            This room&apos;s camera is offline right now.
+          </p>
         </div>
       </div>
     );
   }
 
-  const viewers = Number(stream.viewer_count || 0);
+  const hasPlayback = Boolean(stream.mux_playback_id);
+
+  const enterBufferingState = () => {
+    setIsBuffering(true);
+    setIsLive(false);
+  };
+
+  const exitBufferingState = (live = false) => {
+    setIsBuffering(false);
+    if (live) setIsLive(true);
+  };
 
   return (
-    <div className="relative h-full">
-      {/* Top overlay: status + viewers */}
-      <div className="absolute top-3 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
-        <div className="flex items-center gap-2 pointer-events-auto">
-          {isLive ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-red-600/95 text-white px-2.5 py-1 text-[11px] font-semibold shadow">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              LIVE
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-800/80 text-white px-2.5 py-1 text-[11px] font-semibold">
-              OFFLINE
-            </span>
-          )}
+    <div className="absolute inset-0">
+      <div className="pointer-events-none absolute top-3 left-3 right-3 z-10 flex items-center justify-between">
+        <div className="pointer-events-auto flex items-center gap-2">
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white shadow ${
+              isLive ? "bg-red-600/95" : "bg-gray-800/80"
+            }`}
+          >
+            <span
+              className={`h-2 w-2 rounded-full ${
+                isLive ? "bg-white animate-pulse" : "bg-white/70"
+              }`}
+            />
+            {isLive ? "LIVE" : "OFFLINE"}
+          </span>
           {isLive && (
-            <span className="inline-flex items-center rounded-full bg-white/90 text-gray-800 px-2.5 py-1 text-[11px] font-medium border border-gray-200">
+            <span className="inline-flex items-center rounded-full border border-white/70 bg-white/90 px-2.5 py-1 text-[11px] font-medium text-gray-800">
               Low latency
             </span>
           )}
         </div>
-        <div className="pointer-events-auto">
-          <span className="inline-flex items-center rounded-full bg-white/90 text-gray-900 px-2.5 py-1 text-[11px] font-medium border border-gray-200">
-            {new Intl.NumberFormat("en-US").format(viewers)} watching
-          </span>
-        </div>
       </div>
 
-      {/* Video area */}
-      <div className="absolute inset-0 rounded-lg overflow-hidden bg-black/90">
-        {stream.mux_playback_id ? (
-          <MuxPlayer
-            streamType="live"
-            playbackId={stream.mux_playback_id}
-            metadata={{
-              video_id: stream.id,
-              video_title: `${stream.hamster_name} Live Stream`,
-              viewer_user_id: "anonymous",
-            }}
-            onLoadStart={() => setIsLive(false)}
-            onCanPlay={() => setIsLive(true)}
-            onError={() => setIsLive(false)}
-            autoPlay
-            muted={false}
-            controls
-            className="w-full h-full"
-            style={{ width: "100%", height: "100%" }}
-          />
+      <div className="absolute inset-0 overflow-hidden rounded-lg bg-black">
+        {hasPlayback ? (
+          <>
+            <MuxPlayer
+              streamType="live"
+              playbackId={stream.mux_playback_id}
+              metadata={{
+                video_id: stream.id,
+                video_title: `${stream.hamster_name} Live Stream`,
+                viewer_user_id: "anonymous",
+              }}
+              onLoadStart={enterBufferingState}
+              onCanPlay={() => exitBufferingState(true)}
+              onPlaying={() => exitBufferingState(true)}
+              onWaiting={enterBufferingState}
+              onError={() => exitBufferingState(false)}
+              autoPlay
+              muted
+              controls
+              className="h-full w-full"
+            />
+
+            {isBuffering && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-white">
+                <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-white" />
+                <p className="text-sm font-medium">Loading stream…</p>
+              </div>
+            )}
+          </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gray-900">
-            <div className="text-center text-white/90">
-              <div className="text-6xl mb-2">🐹</div>
-              <p className="text-sm">Setting up {stream.hamster_name}&apos;s camera…</p>
-            </div>
+          <div className="flex h-full w-full flex-col items-center justify-center bg-gray-950 text-white">
+            <div className="mb-4 h-12 w-12 animate-spin rounded-full border-4 border-white/20 border-t-white" />
+            <p className="text-sm font-semibold">Stream feed unavailable</p>
+            <p className="mt-1 text-xs text-white/60">
+              We&apos;ll switch to the live camera as soon as it comes back
+              online.
+            </p>
           </div>
         )}
       </div>
-      {/* Note: Active Predictions panel removed */}
     </div>
   );
 }

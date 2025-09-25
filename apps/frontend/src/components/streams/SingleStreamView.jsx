@@ -83,7 +83,7 @@ export default function SingleStreamView() {
   }
 
   return (
-    <div className="w-full space-y-6 bg-white">
+    <div className="w-full space-y-6 bg-white  px-4">
       <StreamSummaryCards metrics={summaryMetrics} />
 
       <div className="grid gap-6 xl:grid-cols-[2.25fr_1fr]">

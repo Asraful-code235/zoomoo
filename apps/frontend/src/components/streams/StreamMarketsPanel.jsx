@@ -116,7 +116,7 @@ export default function StreamMarketsPanel({
     return (
       <div
         key={market.id}
-        className={`rounded border ${
+        className={`rounded-lg border ${
           isExpanded ? "border-gray-300" : "border-gray-200"
         } bg-white p-3 shadow-sm transition hover:border-gray-300`}
       >
@@ -136,7 +136,7 @@ export default function StreamMarketsPanel({
         </button>
 
         {isResolved ? (
-          <div className="mt-3 flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-600">
+          <div className="mt-2 flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-600">
             <span>Result</span>
             <span
               className={`inline-flex min-w-[42px] items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${
@@ -149,23 +149,19 @@ export default function StreamMarketsPanel({
             </span>
           </div>
         ) : (
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <div className="text-xs text-gray-500">
-              <div className="mt-2 text-xs text-gray-500">
-                Volume:{" "}
-                <span className="font-semibold text-gray-800">
-                  {formatCurrency(
-                    market.total_volume ?? market.volume ?? totalVolume
-                  )}
-                </span>
-              </div>
+          <div className="mt-2 flex items-center justify-between gap-3 text-xs text-gray-500">
+            <div>
+              Volume:
+              <span className="ml-1 font-semibold text-gray-800">
+                {formatCurrency(market.total_volume ?? market.volume ?? totalVolume)}
+              </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-xs">
               <button
                 type="button"
                 onClick={() => handleBet(true, market.id)}
                 disabled={placing || hasBet || isPlaceholder}
-                className={`inline-flex items-center justify-center px-4 py-1 text-xs font-semibold transition cursor-pointer hover:shadow-sm ${
+                className={`inline-flex cursor-pointer items-center justify-center rounded-md px-3 py-1 text-xs font-semibold transition hover:shadow-sm ${
                   placing || hasBet || isPlaceholder
                     ? "bg-[#ECECFD] text-green-600 opacity-60"
                     : "bg-[#ECECFD] text-green-600 hover:bg-emerald-100"
@@ -177,7 +173,7 @@ export default function StreamMarketsPanel({
                 type="button"
                 onClick={() => handleBet(false, market.id)}
                 disabled={placing || hasBet || isPlaceholder}
-                className={`inline-flex items-center justify-center px-4 py-1 text-xs font-semibold transition ${
+                className={`inline-flex cursor-pointer items-center justify-center rounded-md px-3 py-1 text-xs font-semibold transition hover:shadow-sm ${
                   placing || hasBet || isPlaceholder
                     ? "bg-[#FFC9C9] text-red-600 opacity-60"
                     : "bg-[#FFC9C9] text-red-600 hover:bg-rose-100"
@@ -190,7 +186,7 @@ export default function StreamMarketsPanel({
         )}
 
         {!isResolved && isExpanded && (
-          <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
             <label className="text-[11px] font-semibold text-gray-600">
               Amount (USD)
             </label>
@@ -236,9 +232,9 @@ export default function StreamMarketsPanel({
   };
 
   return (
-    <aside className="space-y-6 bg-white">
-      <div className="">
-        <div className="mt-6 flex gap-3 text-sm border-b pb-2">
+    <aside className="space-y-4 bg-white">
+      <div>
+        <div className="mt-4 flex gap-2 text-sm border-b pb-1">
           <button
             type="button"
             onClick={() => setActiveTab("active")}
@@ -263,7 +259,7 @@ export default function StreamMarketsPanel({
           </button>
         </div>
 
-        <div className="mt-4 space-y-3">
+        <div className="mt-3 space-y-2.5">
           {markets.length ? (
             markets.map((market) => renderMarketCard(market))
           ) : (
