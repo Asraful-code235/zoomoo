@@ -17,9 +17,20 @@ function TrendTooltip({ active, payload }) {
   );
 }
 
-export default function StreamTrendCard({ trend, latestPoint, hoverPoint, setHoverPoint }) {
+export default function StreamTrendCard({
+  trend,
+  latestPoint,
+  hoverPoint,
+  setHoverPoint,
+  bare = false,
+  className = "",
+}) {
+  const containerClass = bare
+    ? className
+    : `rounded-2xl border border-gray-200 bg-white p-4 shadow-sm md:p-6 ${className}`.trim();
+
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm md:p-6">
+    <div className={containerClass}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-4 text-xs font-semibold text-gray-700">
           <span className="inline-flex items-center gap-1">

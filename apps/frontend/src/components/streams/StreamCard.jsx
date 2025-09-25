@@ -152,6 +152,30 @@ export default function StreamCard({
             )}
           </div>
         )}
+        {/* Mobile floating YES/NO buttons over the video */}
+        <div className="absolute inset-x-3 bottom-3 md:hidden pointer-events-none">
+          <div className="grid grid-cols-2 gap-2">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={handleYes}
+              onMouseDown={stopPropagation}
+              className="pointer-events-auto h-11 rounded-md bg-[#ECECFD] text-emerald-700 text-sm font-semibold flex items-center justify-center"
+            >
+              YES · {yesPct}¢
+            </div>
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={handleNo}
+              onMouseDown={stopPropagation}
+              className="pointer-events-auto h-11 rounded-md bg-[#FFF1F2] text-rose-600 text-sm font-semibold flex items-center justify-center"
+            >
+              NO · {100 - yesPct}¢
+            </div>
+          </div>
+        </div>
+
       </button>
 
       <div className="p-4 flex flex-col">
@@ -160,23 +184,23 @@ export default function StreamCard({
         </h3>
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
-            {/* placeholder for avatars/participants if needed */} 
+            {/* placeholder for avatars/participants if needed */}
           </div>
         </div>
 
         {mode == null ? (
-          <div className="grid grid-cols-2 gap-3 mt-auto">
+          <div className="hidden md:grid grid-cols-2 gap-3 mt-auto">
             <button
               type="button"
               onClick={handleYes}
-              className="w-full text-sm font-semibold py-2 px-3 text-emerald-700 bg-[#ECECFD] rounded-none border border-transparent"
+              className="w-full text-sm font-semibold h-11 px-3 text-emerald-700 bg-[#ECECFD] rounded-none border border-transparent"
             >
               YES · {yesPct}¢
             </button>
             <button
               type="button"
               onClick={handleNo}
-              className="w-full text-sm font-semibold py-2 px-3 text-rose-600 bg-[#FFF1F2] rounded-none border border-transparent"
+              className="w-full text-sm font-semibold h-11 px-3 text-rose-600 bg-[#FFF1F2] rounded-none border border-transparent"
             >
               NO · {100 - yesPct}¢
             </button>
@@ -255,6 +279,71 @@ export default function StreamCard({
           </span>
         </div>
       </div>
+      {/* Mobile amount entry bottom sheet */}
+      {mode != null && (
+        <div className="md:hidden fixed inset-0 z-50" onClick={() => setMode(null)}>
+          <div className="absolute inset-0 bg-black/40" />
+          <div
+            className="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl p-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div className="text-sm font-semibold text-gray-900">Place bet</div>
+              <button type="button" className="text-sm text-gray-500" onClick={() => setMode(null)}>
+                Cancel
+              </button>
+            </div>
+            <div className="text-xs text-gray-600 mb-2">
+              {mode === "YES" ? (
+                <>
+                  YES · {yesPct}¢
+                </>
+              ) : (
+                <>
+                  NO · {100 - yesPct}¢
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-3 mb-3">
+              <div className="flex items-center bg-white border border-gray-200 shadow-sm px-3 rounded-md">
+                <span className="text-gray-500 mr-1">$</span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  pattern="[0-9]*"
+                  value={amount}
+                  min={1}
+                  max={1000}
+                  step="1"
+                  onChange={(e) => setAmount(Math.max(1, Math.min(1000, Number(e.target.value || 0))))}
+                  className="w-28 py-2 outline-none border-0 text-base"
+                />
+              </div>
+              <div className="flex gap-2">
+                <button type="button" className="px-3 h-9 rounded-md border text-sm text-gray-700" onClick={() => setAmount(1)}>$1</button>
+                <button type="button" className="px-3 h-9 rounded-md border text-sm text-gray-700" onClick={() => setAmount(20)}>$20</button>
+                <button type="button" className="px-3 h-9 rounded-md border text-sm text-gray-700" onClick={() => setAmount(100)}>$100</button>
+                <button type="button" className="px-3 h-9 rounded-md border text-sm text-gray-700" onClick={() => setAmount(1000)}>Max</button>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handlePlaceBet}
+              disabled={placing}
+              className={`w-full rounded-md text-sm font-bold h-11 border shadow-sm transition-opacity ${
+                placing ? "opacity-50 cursor-not-allowed" : ""
+              } ${
+                mode === "YES"
+                  ? "bg-[#ECECFD] text-emerald-700 border-transparent"
+                  : "bg-[#FFF1F2] text-rose-600 border-transparent"
+              }`}
+            >
+              {placing ? "Placing..." : confirmLabel}
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

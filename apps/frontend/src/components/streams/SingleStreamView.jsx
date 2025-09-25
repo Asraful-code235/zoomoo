@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import Modal from "../Modal";
 import { useSingleStream } from "../../hooks/streams/useSingleStream";
@@ -7,6 +7,7 @@ import StreamPlayerCard from "./StreamPlayerCard";
 import StreamPositionsSection from "./StreamPositionsSection";
 import StreamMarketsPanel from "./StreamMarketsPanel";
 import { formatCurrency, formatSignedCurrency } from "./streamFormatting";
+import StreamTrendCard from "./StreamTrendCard";
 
 const QUICK_AMOUNTS = [5, 10, 25, 50];
 
@@ -26,7 +27,12 @@ export default function SingleStreamView() {
     hasBetOnMarket,
     placeInlineBet,
     fetchStream,
+    trend,
+    hoverPoint,
+    setHoverPoint,
   } = useSingleStream(streamId);
+
+  const [isLiveView, setIsLiveView] = useState(true);
 
   const activeMarkets = marketsByStatus.active || [];
   const resolvedMarkets = marketsByStatus.resolved || [];
@@ -82,13 +88,64 @@ export default function SingleStreamView() {
     );
   }
 
+  const latestTrendPoint = hoverPoint || (trend?.length ? trend[trend.length - 1] : null);
+
+  const handleToggleView = () => {
+    setIsLiveView((prev) => !prev);
+  };
+
   return (
     <div className="w-full space-y-6 bg-white  px-4">
       <StreamSummaryCards metrics={summaryMetrics} />
 
       <div className="grid gap-6 xl:grid-cols-[2.25fr_1fr]">
         <div className="space-y-6">
-          <StreamPlayerCard stream={stream} />
+          <div className="rounded-2xl border border-gray-200 bg-white shadow-sm">
+            <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3 md:px-6">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-100 text-base text-gray-600">
+                  {isLiveView ? "📺" : "📈"}
+                </span>
+                {isLiveView ? "Live Stream" : "Chart"}
+              </div>
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-500">
+                <span className={isLiveView ? "text-gray-900" : "text-gray-400"}>Live</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={isLiveView}
+                  onClick={handleToggleView}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                    isLiveView
+                      ? "bg-emerald-500 focus-visible:ring-emerald-400"
+                      : "bg-gray-300 focus-visible:ring-gray-400"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition ${
+                      isLiveView ? "translate-x-5" : "translate-x-1"
+                    }`}
+                  />
+                </button>
+                <span className={!isLiveView ? "text-gray-900" : "text-gray-400"}>Chart</span>
+              </div>
+            </div>
+
+            <div className="px-4 pb-4 pt-4 md:px-6 md:pb-6">
+              {isLiveView ? (
+                <StreamPlayerCard stream={stream} />
+              ) : (
+                <StreamTrendCard
+                  trend={trend}
+                  latestPoint={latestTrendPoint}
+                  hoverPoint={hoverPoint}
+                  setHoverPoint={setHoverPoint}
+                  bare
+                  className="space-y-4"
+                />
+              )}
+            </div>
+          </div>
           <StreamPositionsSection
             positions={userPositions}
             positionsLoading={positionsLoading}
