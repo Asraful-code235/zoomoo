@@ -175,27 +175,266 @@ export default function StreamPositionsSection({
     }
 
     return (
-      <div className="overflow-hidden rounded-2xl bg-white">
-        <table className="w-full text-sm bg-white">
-          <thead className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500 border-b pb-3">
+      <div className="space-y-3">
+        <div className="space-y-3 md:hidden">
+          {tablePositions.map((row) => {
+            const pnlPositive = row.pnlValue >= 0;
+            const pnlAmount = toCurrency(Math.abs(row.pnlValue));
+            const signedPnl = `${pnlPositive ? "+" : "-"}${pnlAmount}`;
+
+            return (
+              <div
+                key={row.id}
+                className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm font-semibold text-gray-900">
+                    {row.market}
+                  </p>
+                  <span
+                    className={`inline-flex min-w-[44px] items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium ${
+                      row.side === "YES"
+                        ? "bg-[#ECECFD] text-[#1D4ED8]"
+                        : "bg-[#FFE8EC] text-[#DB2777]"
+                    }`}
+                  >
+                    {row.side}
+                  </span>
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-gray-500">
+                  <div>
+                    <p className="font-semibold uppercase tracking-wide text-gray-500">
+                      Size
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-gray-900">
+                      {toCurrency(row.size)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-semibold uppercase tracking-wide text-gray-500">
+                      Entry
+                    </p>
+                    <p className="mt-1 text-sm text-gray-700">
+                      {formatCents(row.entryCents)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-semibold uppercase tracking-wide text-gray-500">
+                      Price
+                    </p>
+                    <p className="mt-1 text-sm text-gray-700">
+                      {formatCents(row.priceCents)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="font-semibold uppercase tracking-wide text-gray-500">
+                      PnL
+                    </p>
+                    <p
+                      className={`mt-1 text-sm font-semibold ${
+                        pnlPositive ? "text-emerald-600" : "text-rose-600"
+                      }`}
+                    >
+                      {signedPnl}
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
+                  <button
+                    type="button"
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50 sm:w-auto"
+                  >
+                    Close 50%
+                  </button>
+                  <button
+                    type="button"
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50 sm:w-auto"
+                  >
+                    Close 100%
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="hidden overflow-hidden rounded-2xl bg-white md:block">
+          <table className="w-full bg-white text-sm">
+            <thead className="border-b pb-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+              <tr>
+                <th className="py-3">Market</th>
+                <th className="py-3">Side</th>
+                <th className="py-3">Size ($)</th>
+                <th className="py-3">Entry</th>
+                <th className="py-3">Price</th>
+                <th className="py-3">PnL</th>
+                <th className="py-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {tablePositions.map((row) => {
+                const pnlPositive = row.pnlValue >= 0;
+                const pnlAmount = toCurrency(Math.abs(row.pnlValue));
+
+                return (
+                  <tr key={row.id} className="transition-colors hover:bg-gray-50">
+                    <td className="py-3 text-sm font-medium text-gray-900">
+                      <span className="line-clamp-2 leading-snug">
+                        {row.market}
+                      </span>
+                    </td>
+                    <td className="py-3">
+                      <span
+                        className={`inline-flex min-w-[44px] items-center justify-center px-3 py-1.5 text-xs font-medium ${
+                          row.side === "YES"
+                            ? "bg-[#ECECFD] text-[#1D4ED8]"
+                            : "bg-[#FFE8EC] text-[#DB2777]"
+                        }`}
+                      >
+                        {row.side}
+                      </span>
+                    </td>
+                    <td className="py-3 text-sm font-medium text-gray-900">
+                      {toCurrency(row.size)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      {formatCents(row.entryCents)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-gray-600">
+                      {formatCents(row.priceCents)}
+                    </td>
+                    <td
+                      className={`px-4 py-3 text-sm font-medium ${
+                        pnlPositive ? "text-emerald-600" : "text-rose-600"
+                      }`}
+                    >
+                      {`${pnlPositive ? "+" : "-"}${pnlAmount}`}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          className="inline-flex items-center rounded-md border border-gray-200 bg-white px-2.5 py-2 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50"
+                        >
+                          Close 50%
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50"
+                        >
+                          Close 100%
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    );
+  };
+
+  const renderOrders = () => (
+    <div className="space-y-3">
+      <div className="space-y-3 md:hidden">
+        {tableOrders.map((row) => {
+          const payoutPositive = row.payout >= row.size;
+          const outcomeIsYes = row.outcome?.toUpperCase() === "YES";
+
+          return (
+            <div
+              key={row.id}
+              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-sm font-semibold text-gray-900">
+                  {row.market}
+                </p>
+                <span
+                  className={`inline-flex min-w-[44px] items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium ${
+                    row.side === "YES"
+                      ? "bg-[#ECECFD] text-[#1D4ED8]"
+                      : "bg-[#FFE8EC] text-[#DB2777]"
+                  }`}
+                >
+                  {row.side}
+                </span>
+              </div>
+              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-gray-500">
+                <div>
+                  <p className="font-semibold uppercase tracking-wide text-gray-500">
+                    Size
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-gray-900">
+                    {toCurrency(row.size)}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-semibold uppercase tracking-wide text-gray-500">
+                    Outcome
+                  </p>
+                  {row.outcome ? (
+                    <span
+                      className={`mt-1 inline-flex min-w-[44px] items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold ${
+                        outcomeIsYes
+                          ? "bg-[#ECECFD] text-[#1D4ED8]"
+                          : "bg-[#FFE8EC] text-[#DB2777]"
+                      }`}
+                    >
+                      {row.outcome}
+                    </span>
+                  ) : (
+                    <p className="mt-1 text-sm text-gray-600">—</p>
+                  )}
+                </div>
+                <div>
+                  <p className="font-semibold uppercase tracking-wide text-gray-500">
+                    Payout
+                  </p>
+                  <p
+                    className={`mt-1 text-sm font-semibold ${
+                      payoutPositive ? "text-emerald-600" : "text-rose-600"
+                    }`}
+                  >
+                    {toCurrency(row.payout)}
+                  </p>
+                </div>
+                <div>
+                  <p className="font-semibold uppercase tracking-wide text-gray-500">
+                    Settled
+                  </p>
+                  <p className="mt-1 text-sm text-gray-600">
+                    {row.settledAt ? chartTickFormatter(row.settledAt) : "—"}
+                  </p>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="hidden overflow-hidden rounded-2xl bg-white md:block">
+        <table className="w-full text-sm">
+          <thead className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
             <tr>
-              <th className=" py-3">Market</th>
-              <th className=" py-3">Side</th>
-              <th className=" py-3">Size ($)</th>
-              <th className=" py-3">Entry</th>
-              <th className=" py-3">Price</th>
-              <th className=" py-3">PnL</th>
-              <th className=" py-3 text-right">Action</th>
+              <th className="py-3">Market</th>
+              <th className="py-3">Side</th>
+              <th className="py-3">Size ($)</th>
+              <th className="py-3">Outcome</th>
+              <th className="py-3">Payout</th>
+              <th className="py-3">Settled</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-10">
-            {tablePositions.map((row) => {
-              const pnlPositive = row.pnlValue >= 0;
-              const pnlAmount = toCurrency(Math.abs(row.pnlValue));
+          <tbody className="divide-y divide-gray-100 bg-white">
+            {tableOrders.map((row) => {
+              const payoutPositive = row.payout >= row.size;
+              const outcomeIsYes = row.outcome?.toUpperCase() === "YES";
 
               return (
                 <tr key={row.id} className="transition-colors hover:bg-gray-50">
-                  <td className="py-3 text-sm font-medium text-gray-900">
+                  <td className="px-4 py-3 text-sm font-medium text-gray-900">
                     <span className="line-clamp-2 leading-snug">
                       {row.market}
                     </span>
@@ -211,37 +450,33 @@ export default function StreamPositionsSection({
                       {row.side}
                     </span>
                   </td>
-                  <td className="py-3 text-sm font-medium text-gray-900">
+                  <td className="py-3 text-sm font-semibold text-gray-900">
                     {toCurrency(row.size)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    {formatCents(row.entryCents)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    {formatCents(row.priceCents)}
+                  <td className="px-4 py-3 text-sm font-semibold text-gray-700">
+                    {row.outcome ? (
+                      <span
+                        className={`inline-flex min-w-[44px] items-center justify-center px-3 py-1.5 text-xs font-medium ${
+                          outcomeIsYes
+                            ? "bg-[#ECECFD] text-[#1D4ED8]"
+                            : "bg-[#FFE8EC] text-[#DB2777]"
+                        }`}
+                      >
+                        {row.outcome}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td
-                    className={`px-4 py-3 text-sm font-medium ${
-                      pnlPositive ? "text-emerald-600" : "text-rose-600"
+                    className={`py-3 text-sm font-semibold ${
+                      payoutPositive ? "text-emerald-600" : "text-rose-600"
                     }`}
                   >
-                    {`${pnlPositive ? "+" : "-"}${pnlAmount}`}
+                    {toCurrency(row.payout)}
                   </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        className="inline-flex items-center  border border-gray-200 bg-white px-2.5 py-2 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50"
-                      >
-                        Close 50%
-                      </button>
-                      <button
-                        type="button"
-                        className="inline-flex items-center  border border-gray-200 bg-white px-3 py-1 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50"
-                      >
-                        Close 100%
-                      </button>
-                    </div>
+                  <td className="py-3 text-sm text-gray-500">
+                    {row.settledAt ? chartTickFormatter(row.settledAt) : "—"}
                   </td>
                 </tr>
               );
@@ -249,82 +484,12 @@ export default function StreamPositionsSection({
           </tbody>
         </table>
       </div>
-    );
-  };
-
-  const renderOrders = () => (
-    <div className="overflow-hidden bg-white">
-      <table className="w-full text-sm">
-        <thead className=" text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-          <tr>
-            <th className=" py-3">Market</th>
-            <th className=" py-3">Side</th>
-            <th className=" py-3">Size ($)</th>
-            <th className=" py-3">Outcome</th>
-            <th className=" py-3">Payout</th>
-            <th className=" py-3">Settled</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100 bg-white">
-          {tableOrders.map((row) => {
-            const payoutPositive = row.payout >= row.size;
-            return (
-              <tr key={row.id} className="transition-colors hover:bg-gray-50">
-                <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                  <span className="line-clamp-2 leading-snug">
-                    {row.market}
-                  </span>
-                </td>
-                <td className="py-3">
-                  <span
-                    className={`inline-flex min-w-[44px] items-center justify-center px-3 py-1.5 text-xs font-medium ${
-                      row.side === "YES"
-                        ? "bg-[#ECECFD] text-[#1D4ED8]"
-                        : "bg-[#FFE8EC] text-[#DB2777]"
-                    }`}
-                  >
-                    {row.side}
-                  </span>
-                </td>
-                <td className="≈ py-3 text-sm font-semibold text-gray-900">
-                  {toCurrency(row.size)}
-                </td>
-                <td className="px-4 py-3 text-sm font-semibold text-gray-700">
-                  {row.outcome ? (
-                    <span
-                      className={`inline-flex min-w-[44px] items-center justify-center px-3 py-1.5 text-xs font-medium ${
-                        row.side === "YES"
-                          ? "bg-[#ECECFD] text-[#1D4ED8]"
-                          : "bg-[#FFE8EC] text-[#DB2777]"
-                      }`}
-                    >
-                      {row.outcome}
-                    </span>
-                  ) : (
-                    "—"
-                  )}
-                </td>
-                <td
-                  className={`py-3 text-sm font-semibold ${
-                    payoutPositive ? "text-emerald-600" : "text-rose-600"
-                  }`}
-                >
-                  {toCurrency(row.payout)}
-                </td>
-                <td className=" py-3 text-sm text-gray-500">
-                  {row.settledAt ? chartTickFormatter(row.settledAt) : "—"}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
     </div>
   );
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-[#F9FAFB] shadow-sm">
-      <div className="flex items-center gap-4 border-b border-gray-200 p-3.5 bg-[#E5E5E5]">
+      <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 bg-[#E5E5E5] px-3 py-2 md:gap-4 md:px-4">
         <button
           type="button"
           onClick={() => setActiveTab("positions")}
@@ -357,7 +522,7 @@ export default function StreamPositionsSection({
           </button>
         )}
       </div>
-      <div className="p-3.5 bg-white">
+      <div className="bg-white p-3 md:p-4">
         {activeTab === "positions" ? renderPositions() : renderOrders()}
       </div>
     </div>
