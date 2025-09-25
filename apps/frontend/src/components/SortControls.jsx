@@ -48,8 +48,8 @@ export default function SortControls({ sortKey, setSortKey }) {
         aria-expanded={isOpen}
       >
         <ArrowUpDown className="h-4 w-4" aria-hidden />
-        Sort
-        <ChevronDown className="h-4 w-4" aria-hidden />
+        <span className='max-md:hidden'>Sort</span>
+        <ChevronDown className="h-4 w-4 max-md:hidden" aria-hidden />
       </button>
 
       <div

@@ -1,194 +1,163 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { usePrivy } from '@privy-io/react-auth';
-import { 
-  X, 
-  Copy, 
-  Check,
-  LayoutDashboard, 
-  FileText, 
-  Wallet, 
+import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { usePrivy } from "@privy-io/react-auth";
+import {
+  X,
+  Copy,
+  LayoutDashboard,
+  FileText,
+  Wallet,
   Users,
   LogOut,
-  User
-} from 'lucide-react';
+  User,
+} from "lucide-react";
 
-export default function MobileSidebar({ isOpen, onClose, customImages = {} }) {
+export default function MobileSidebar({ isOpen, onClose }) {
   const { authenticated, user, logout } = usePrivy();
-  const [copiedAddress, setCopiedAddress] = useState(false);
 
-  // Get wallet address
-  const walletAddress = user?.wallet?.address || 
-    user?.linkedAccounts?.find(acc => acc.type === 'wallet')?.address ||
-    'No wallet connected';
+  const walletAddress = useMemo(() => {
+    return (
+      user?.wallet?.address ||
+      user?.linkedAccounts?.find((acc) => acc.type === "wallet")?.address ||
+      null
+    );
+  }, [user?.wallet?.address, user?.linkedAccounts]);
 
-  const formatAddress = (address) => {
-    if (!address || address === 'No wallet connected') return address;
-    return `${address.slice(0, 6)}...${address.slice(-6)}`;
-  };
+  const truncatedAddress = walletAddress
+    ? `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`
+    : null;
 
-  const copyAddress = async () => {
-    if (walletAddress && walletAddress !== 'No wallet connected') {
-      try {
-        await navigator.clipboard.writeText(walletAddress);
-        setCopiedAddress(true);
-        setTimeout(() => setCopiedAddress(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy address:', err);
-      }
-    }
-  };
+  const displayName = truncatedAddress
+    ? truncatedAddress
+    : user?.email?.address || user?.google?.email || "Connected";
+
+  const profileImage =
+    user?.farcaster?.pfp ||
+    user?.twitter?.profilePictureUrl ||
+    user?.telegram?.profilePictureUrl ||
+    user?.profilePictureUrl ||
+    null;
 
   const navigationItems = [
-    { 
-      to: "/", 
-      label: "Dashboard", 
-      icon: LayoutDashboard,
-      customIcon: customImages.dashboard
-    },
-    { 
-      to: "/thesis", 
-      label: "Thesis", 
-      icon: FileText,
-      customIcon: customImages.thesis
-    },
-    { 
-      to: "/buy-coins", 
-      label: "Buy Coins", 
-      icon: Wallet,
-      customIcon: customImages.buyCoins
-    },
-    { 
-      to: "/community", 
-      label: "Join Our Community", 
-      icon: Users,
-      customIcon: customImages.community
-    },
+    { to: "/", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/thesis", label: "Thesis", icon: FileText },
+    { to: "/buy-coins", label: "Buy coins", icon: Wallet },
   ];
 
-  const handleNavClick = (to) => {
-    onClose();
+  const secondaryItems = [
+    { to: "/community", label: "Join our community", icon: Users },
+  ];
+
+  const handleCopy = () => {
+    if (!walletAddress) return;
+    navigator.clipboard.writeText(walletAddress).catch(() => {});
+  };
+
+  const handleNav = () => {
+    onClose?.();
   };
 
   const handleLogout = () => {
     logout?.();
-    onClose();
+    onClose?.();
   };
 
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Backdrop */}
-      <div 
-        className="fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden"
+      <div
+        className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm lg:hidden"
         onClick={onClose}
       />
-      
-      {/* Sidebar */}
-      <div className={`fixed top-0 right-0 h-full w-80 bg-white z-50 transform transition-transform duration-300 ease-in-out lg:hidden ${
-        isOpen ? 'translate-x-0' : 'translate-x-full'
-      }`}>
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Menu</h2>
+
+      <aside
+        className={`fixed top-0 right-0 z-[70] h-full w-full bg-white transition-transform duration-300 ease-in-out lg:hidden ${
+          isOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="flex h-full flex-col">
+          <div className="flex items-center justify-between px-6 py-5">
+            {authenticated && user ? (
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-900 text-white">
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Avatar"
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <User className="h-5 w-5" />
+                  )}
+                </div>
+                <span className="text-sm font-semibold text-gray-900">{displayName}</span>
+                {truncatedAddress && (
+                  <button
+                    onClick={handleCopy}
+                    className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100"
+                    aria-label="Copy address"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            ) : (
+              <span className="text-sm font-semibold text-gray-900">Menu</span>
+            )}
+
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100"
+              aria-label="Close menu"
             >
-              <X className="w-5 h-5 text-gray-500" />
+              <X className="h-5 w-5" />
             </button>
           </div>
 
-          {/* User Profile Section */}
-          {authenticated && user && (
-            <div className="p-4 border-b border-gray-200">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-gray-900 text-white flex items-center justify-center text-lg">
-                  {customImages.profile ? (
-                    <img 
-                      src={customImages.profile} 
-                      alt="Profile" 
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  ) : (
-                    <User className="w-6 h-6" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm font-medium text-gray-900 truncate">
-                    {user.email?.address || user.google?.email || 'User'}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Connected
-                  </div>
-                </div>
+          <div className="flex-1 overflow-y-auto px-6 py-6">
+            <nav className="space-y-6 text-gray-900">
+              <div className="space-y-4">
+                {navigationItems.map(({ to, label, icon: Icon }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={handleNav}
+                    className="flex items-center gap-3 text-sm font-medium transition hover:text-gray-600"
+                  >
+                    <Icon className="h-5 w-5" />
+                    {label}
+                  </Link>
+                ))}
               </div>
-              
-              {/* Wallet Address */}
-              <div className="bg-gray-50 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Wallet Address</div>
-                    <div className="text-sm font-mono text-gray-900">
-                      {formatAddress(walletAddress)}
-                    </div>
-                  </div>
-                  {walletAddress !== 'No wallet connected' && (
-                    <button
-                      onClick={copyAddress}
-                      className="p-2 rounded-md hover:bg-gray-200 transition-colors"
-                    >
-                      {copiedAddress ? (
-                        <Check className="w-4 h-4 text-green-600" />
-                      ) : (
-                        <Copy className="w-4 h-4 text-gray-500" />
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* Navigation Items */}
-          <nav className="flex-1 p-4 space-y-2">
-            {navigationItems.map(({ to, label, icon: Icon, customIcon }) => (
-              <Link
-                key={to}
-                to={to}
-                onClick={() => handleNavClick(to)}
-                className="flex items-center gap-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors"
-              >
-                {customIcon ? (
-                  <img 
-                    src={customIcon} 
-                    alt={label} 
-                    className="w-5 h-5"
-                  />
-                ) : (
-                  <Icon className="w-5 h-5" />
+              <div className="space-y-4 border-t border-gray-200 pt-4">
+                {secondaryItems.map(({ to, label, icon: Icon }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    onClick={handleNav}
+                    className="flex items-center gap-3 text-sm font-medium transition hover:text-gray-600"
+                  >
+                    <Icon className="h-5 w-5" />
+                    {label}
+                  </Link>
+                ))}
+
+                {authenticated && (
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center gap-3 text-sm font-semibold text-red-500 transition hover:text-red-600"
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Logout
+                  </button>
                 )}
-                <span className="text-sm font-medium">{label}</span>
-              </Link>
-            ))}
-          </nav>
-
-          {/* Footer */}
-          {authenticated && (
-            <div className="p-4 border-t border-gray-200">
-              <button
-                onClick={handleLogout}
-                className="flex items-center gap-3 px-3 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors w-full"
-              >
-                <LogOut className="w-5 h-5" />
-                <span className="text-sm font-medium">Logout</span>
-              </button>
-            </div>
-          )}
+              </div>
+            </nav>
+          </div>
         </div>
-      </div>
+      </aside>
     </>
   );
 }

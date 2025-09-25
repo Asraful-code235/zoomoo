@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { usePrivy } from "@privy-io/react-auth";
-import { LayoutDashboard, Trophy, FileText, User, Crown, Wallet, LogOut, Menu } from "lucide-react";
+import { Home, LineChart, Trophy, User, TrendingUp } from "lucide-react";
 import MobileSidebar from "../MobileSidebar";
+import MarqueeTicker from "./MarqueeTicker";
 
 export default function Navigation({ logo }) {
-  const { authenticated, user, login, logout } = usePrivy();
+  const { authenticated, user, login } = usePrivy();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -14,173 +15,87 @@ export default function Navigation({ logo }) {
     user?.google?.email ||
     user?.linkedAccounts?.find((acc) => acc.type === "google_oauth")?.email;
 
-  const isAdmin =
-    userEmail === "admin@zoomies.com" ||
-    userEmail === "omathehero@gmail.com" ||
-    userEmail === "test-7860@privy.io" ||
-    (typeof userEmail === "string" && userEmail.includes("admin"));
-
-  const links = useMemo(() => {
-    const base = [
-      { to: "/", label: "Dashboard", icon: LayoutDashboard },
+  const bottomNavLinks = useMemo(
+    () => [
+      { to: "/", label: "Home", icon: Home },
+      { to: "/market", label: "Market", icon: LineChart },
+      { to: "/streams", label: "Feed", icon: TrendingUp },
       { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
-      { to: "/thesis", label: "Thesis", icon: FileText },
-      { to: "/profile", label: "Profile", icon: User },
-    ];
-    if (isAdmin) base.push({ to: "/admin", label: "Admin", icon: Crown });
-    return base;
-  }, [isAdmin]);
+    ],
+    []
+  );
 
-  const handleNavClick = (e, to) => {
+  const handleNavClick = (event) => {
     if (!authenticated) {
-      e.preventDefault();
+      event.preventDefault();
       login?.();
     }
   };
 
+  const profileAvatar = user?.farcaster?.pfp || user?.twitter?.profilePictureUrl;
+  const profileLabel = user?.farcaster?.username || user?.twitter?.username || userEmail || "Profile";
+
   return (
     <>
-      <aside className="hidden md:flex lg:hidden md:fixed md:inset-y-0 md:left-0 md:z-40 w-24 shrink-0 bg-white border-r-2 border-[rgb(241,244,247)]">
-        <div className="flex h-full w-full flex-col">
-          <div className="px-2 text-center">
-            <Link to="/" onClick={(e) => handleNavClick(e, "/")} className="block">
-              <img src={logo} alt="Furcast" className="mx-auto w-[96px] md:w-[104px] lg:w-[112px] h-auto" />
-            </Link>
-          </div>
-          <nav className="flex-1 overflow-y-auto px-1.5 py-2 space-y-1.5">
-            {links.map(({ to, label, icon: Icon }) => {
-              const isActive = location.pathname === to;
-              return (
-                <NavLink
-                  key={to}
-                  to={to}
-                  onClick={(e) => handleNavClick(e, to)}
-                  className="group flex flex-col items-center justify-center gap-1 rounded-lg px-1 py-2 transition-all no-underline text-center"
-                >
-                  <span
-                    className={[
-                      "flex items-center justify-center w-10 h-10 rounded-md transition-colors",
-                      isActive ? "bg-[rgb(230,230,230)]" : "bg-transparent group-hover:bg-[rgb(230,230,230)]",
-                    ].join(" ")}
-                  >
-                    <Icon
-                      className={[
-                        "w-6 h-6 transition-colors",
-                        isActive
-                          ? "text-[rgb(15,15,15)]"
-                          : "text-[rgb(163,163,163)] group-hover:text-[rgb(15,15,15)]",
-                      ].join(" ")}
-                    />
-                  </span>
-                  <span
-                    className={[
-                      "block max-w-full truncate text-[12px] font-semibold leading-tight transition-colors",
-                      isActive ? "text-[rgb(15,15,15)]" : "text-[rgb(163,163,163)] group-hover:text-[rgb(15,15,15)]",
-                    ].join(" ")}
-                  >
-                    {label}
-                  </span>
-                </NavLink>
-              );
-            })}
-          </nav>
-          <div className="mt-auto px-2 pb-5 pt-3 bg-white">
-            <div className="flex flex-col items-center gap-3">
-              <button
-                type="button"
-                onClick={(e) => handleNavClick(e, "/buy")}
-                className="flex flex-col items-center gap-1 text-[rgb(15,15,15)] hover:opacity-90"
-              >
-                <span className="flex items-center justify-center w-10 h-10 rounded-md hover:bg-[rgb(230,230,230)] transition-colors">
-                  <Wallet className="w-6 h-6" />
-                </span>
-                <span className="text-[12px] font-semibold">Buy coins</span>
-              </button>
-
-              {!authenticated ? (
-                <button type="button" onClick={() => login?.()} className="flex flex-col items-center gap-1">
-                  <span className="flex items-center justify-center w-10 h-10 rounded-md bg-black text-white">
-                    <User className="w-6 h-6" />
-                  </span>
-                  <span className="text-[12px] font-semibold text-[rgb(15,15,15)]">Log In</span>
-                </button>
-              ) : (
-                <button type="button" onClick={() => logout?.()} className="flex flex-col items-center gap-1">
-                  <span className="flex items-center justify-center w-10 h-10 rounded-md hover:bg-[rgb(230,230,230)] border-2 border-[rgb(241,244,247)]">
-                    <LogOut className="w-6 h-6 text-[rgb(15,15,15)]" />
-                  </span>
-                  <span className="text-[12px] font-semibold text-[rgb(15,15,15)]">Log Out</span>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
-      </aside>
-
-      <div className="md:hidden fixed top-0 inset-x-0 z-50 bg-white border-b-2 border-[rgb(241,244,247)]">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Link to="/" onClick={(e) => handleNavClick(e, "/")} className="no-underline">
-            <img src={logo} alt="Furcast" className="h-12 w-auto sm:h-14" />
+      <header className="sticky top-0 z-40 border-b border-gray-200 bg-white shadow-sm block md:hidden">
+        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+          <Link to="/" onClick={(event) => handleNavClick(event, "/")}
+            className="flex items-center gap-3 no-underline">
+            <img src={logo} alt="Furcast" className="h-10 w-auto" />
           </Link>
 
-          {!authenticated ? (
-            <button onClick={() => login?.()} className="flex items-center gap-2 bg-black text-white px-3 py-2 rounded-lg">
-              <User className="w-5 h-5" />
-              <span className="text-sm font-semibold">Log In</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => setMobileMenuOpen(true)}
-              className="flex items-center gap-2 text-[rgb(15,15,15)] px-3 py-2 rounded-lg border border-[rgb(241,244,247)] hover:bg-[rgb(230,230,230)]"
-            >
-              <Menu className="w-5 h-5" />
-              <span className="text-sm font-semibold">Menu</span>
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {authenticated ? (
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="flex items-center gap-3 rounded-full border border-gray-200 bg-white px-2 py-1 text-left shadow-sm transition hover:bg-gray-50"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white">
+                  {profileAvatar ? (
+                    <img src={profileAvatar} alt={profileLabel} className="h-full w-full rounded-full object-cover" />
+                  ) : (
+                    profileLabel?.slice(0, 1)?.toUpperCase() || <User className="h-4 w-4" />
+                  )}
+                </span>
+               
+              </button>
+            ) : (
+              <button
+                onClick={() => login?.()}
+                className="rounded-full bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-gray-800"
+              >
+                Log In
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+        <div className="bg-white">
+          <MarqueeTicker />
+        </div>
+      </header>
 
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-50 bg-white border-t-2 border-[rgb(241,244,247)]">
+      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white border-t border-gray-200">
         <div className="grid grid-cols-4">
-          {links.map(({ to, label, icon: Icon }) => {
+          {bottomNavLinks.map(({ to, label, icon: Icon }) => {
             const isActive = location.pathname === to;
             return (
               <NavLink
                 key={to}
                 to={to}
-                onClick={(e) => handleNavClick(e, to)}
-                className="flex flex-col items-center justify-center py-2.5 no-underline group"
+                onClick={(event) => handleNavClick(event, to)}
+                className="flex flex-col items-center justify-center gap-1 py-2 no-underline"
               >
-                <span
-                  className={[
-                    "flex items-center justify-center w-10 h-10 rounded-md transition-colors",
-                    isActive ? "bg-[rgb(230,230,230)]" : "bg-transparent group-hover:bg-[rgb(230,230,230)]",
-                  ].join(" ")}
-                >
-                  <Icon
-                    className={[
-                      "w-6 h-6 transition-colors",
-                      isActive
-                        ? "text-[rgb(15,15,15)]"
-                        : "text-[rgb(163,163,163)] group-hover:text-[rgb(15,15,15)]",
-                    ].join(" ")}
-                  />
-                </span>
-                <span
-                  className={[
-                    "text-[12px] font-semibold mt-0.5 transition-colors",
-                    isActive ? "text-[rgb(15,15,15)]" : "text-[rgb(163,163,163)]",
-                  ].join(" ")}
-                >
-                  {label}
-                </span>
+                {Icon && (
+                  <Icon className={`h-5 w-5 ${isActive ? "text-gray-900" : "text-gray-400"}`} />
+                )}
+                <span className={`text-xs font-semibold ${isActive ? "text-gray-900" : "text-gray-400"}`}>{label}</span>
               </NavLink>
             );
           })}
         </div>
       </nav>
 
-      {/* Mobile Sidebar */}
       <MobileSidebar
         isOpen={mobileMenuOpen}
         onClose={() => setMobileMenuOpen(false)}
@@ -188,4 +103,3 @@ export default function Navigation({ logo }) {
     </>
   );
 }
-

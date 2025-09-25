@@ -4,7 +4,6 @@ import Preloader from "./components/Preloader";
 import BackupReminderModal from './components/BackupReminderModal'
 import Navigation from './components/home/Navigation'
 import Sidebar from './components/Sidebar'
-import MarqueeTicker from './components/home/MarqueeTicker'
 import Dashboard from './components/home/Dashboard'
 import AdminPanel from './components/AdminPanel'
 import Profile from './components/Profile'
@@ -34,8 +33,7 @@ function App() {
         <Navigation logo={logo} />
         <Sidebar logo={logo} />
 
-        <main className="w-full md:pl-24 lg:pl-28 xl:pl-32 max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 overflow-x-hidden pt-16 pb-20 md:pt-4 md:pb-0">
-          <MarqueeTicker />
+        <main className="w-full md:pl-24 lg:pl-28 xl:pl-32 max-w-[1920px] mx-auto lg:px-8 overflow-x-hidden pb-24  md:pb-24">
           <Routes>
             <Route
               path="/"
@@ -43,6 +41,10 @@ function App() {
             />
             <Route
               path="/streams"
+              element={<div className="pt-3 md:pt-4 pb-8">{authenticated ? <StreamGrid /> : <Welcome />}</div>}
+            />
+            <Route
+              path="/market"
               element={<div className="pt-3 md:pt-4 pb-8">{authenticated ? <StreamGrid /> : <Welcome />}</div>}
             />
             <Route
@@ -81,4 +83,3 @@ function App() {
 }
 
 export default App
-

@@ -184,13 +184,12 @@ export default function StreamGrid() {
 
   return (
     <div className="max-w-screen-2xl mx-auto px-6 md:px-8">
-      <div className="mb-6 md:mb-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="mb-6 md:mb-8 flex gap-3 flex-row md:items-center justify-between">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Trending Markets
+             Markets
             {refreshing && <span className="ml-2 text-xs text-gray-500">Refreshing…</span>}
           </h2>
-          <p className="text-gray-600">Watch and predict hamster behaviors in real time.</p>
         </div>
         <SortControls sortKey={sortKey} setSortKey={setSortKey} />
       </div>
