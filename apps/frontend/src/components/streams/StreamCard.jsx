@@ -1,6 +1,8 @@
 import { useState, useMemo } from "react";
 import { Play, AlarmClock, Check } from "lucide-react";
 import { useBetting } from "../../hooks/useBetting";
+import { usePrivy } from "@privy-io/react-auth";
+
 
 export default function StreamCard({
   stream,
@@ -19,6 +21,8 @@ export default function StreamCard({
   const [success, setSuccess] = useState(null);
 
   const stopPropagation = (event) => event.stopPropagation();
+
+  const { login } = usePrivy();
 
   const { placeBet, placing } = useBetting();
 
@@ -68,6 +72,10 @@ export default function StreamCard({
 
   const handleYes = (e) => {
     e.stopPropagation();
+    if (!authenticated) {
+      login?.();
+      return;
+    }
     setMode("YES");
     setError(null);
     setSuccess(null);
@@ -75,6 +83,10 @@ export default function StreamCard({
 
   const handleNo = (e) => {
     e.stopPropagation();
+    if (!authenticated) {
+      login?.();
+      return;
+    }
     setMode("NO");
     setError(null);
     setSuccess(null);
@@ -82,6 +94,11 @@ export default function StreamCard({
 
   const handlePlaceBet = async (e) => {
     e.stopPropagation();
+
+    if (!authenticated) {
+      login?.();
+      return;
+    }
 
     if (!activeMarket) {
       setError("No active market available");

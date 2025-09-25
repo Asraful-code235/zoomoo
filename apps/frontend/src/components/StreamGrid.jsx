@@ -279,7 +279,7 @@ export default function StreamGrid() {
               const noVol = Number(m?.no_volume || 0);
               const totalVol = Number(m?.total_volume ?? yesVol + noVol);
               return (
-                <div key={stream.id} className="shrink-0" style={{ width: Math.max(1, containerW) }}>
+                <div key={stream.id} className="shrink-0" style={{ width: Math.max(1, containerW) }} onClick={() => (!authenticated ? login?.() : navigate(`/streams/${stream.id}`))}>
                   <div className="px-6">
                     <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm flex flex-col">
                       {/* Top row: Question (big) + Ends time on the right */}
@@ -321,14 +321,14 @@ export default function StreamGrid() {
               <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
-                  onClick={() => { setSelectedSide('YES'); setSelectedStream(stream); setSelectedMarket(m); setShowSheet(true); }}
+                  onClick={() => { if (!authenticated) { login?.(); return; } setSelectedSide('YES'); setSelectedStream(stream); setSelectedMarket(m); setShowSheet(true); }}
                   className="h-14 rounded-md bg-[#ECECFD] text-emerald-700 text-sm font-semibold flex items-center justify-center shadow-sm"
                 >
                   YES · {yesPct}¢
                 </button>
                 <button
                   type="button"
-                  onClick={() => { setSelectedSide('NO'); setSelectedStream(stream); setSelectedMarket(m); setShowSheet(true); }}
+                  onClick={() => { if (!authenticated) { login?.(); return; } setSelectedSide('NO'); setSelectedStream(stream); setSelectedMarket(m); setShowSheet(true); }}
                   className="h-14 rounded-md bg-[#FFF1F2] text-rose-600 text-sm font-semibold flex items-center justify-center shadow-sm"
                 >
                   NO · {100 - yesPct}¢

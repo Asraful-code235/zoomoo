@@ -25,8 +25,9 @@ export default function Navigation({ logo }) {
     []
   );
 
-  const handleNavClick = (event) => {
-    if (!authenticated) {
+  const handleNavClick = (event, to) => {
+    const protectedPaths = new Set(["/buy-coins", "/profile", "/admin"]);
+    if (!authenticated && protectedPaths.has(to)) {
       event.preventDefault();
       login?.();
     }

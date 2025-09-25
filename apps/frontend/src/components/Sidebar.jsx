@@ -3,11 +3,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
 
 export default function Sidebar({ logo }) {
-  const { authenticated } = usePrivy();
+  const { authenticated, login, logout } = usePrivy();
   const location = useLocation();
 
   const navItems = [
-    { to: "/", label: "Live", icon: "/live.svg" },
+    { to: "/market", label: "Live", icon: "/live.svg" },
     { to: "/streams", label: "Feed", icon: "/feed.svg" },
     { to: "/leaderboard", label: "Leaderboard", icon: "/leaderboard.svg" },
     { to: "/", label: "Dashboard", icon: "/dashboard.svg" },
@@ -86,17 +86,34 @@ export default function Sidebar({ logo }) {
           </Link>
         ))}
 
-        {/* User Profile */}
-        {authenticated && (
-          <Link
-            to="/profile"
-            className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+        {/* Profile / Auth Controls */}
+        {authenticated ? (
+          <>
+            <Link
+              to="/profile"
+              className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-xs text-white">
+                🐹
+              </div>
+              Profile
+            </Link>
+            <button
+              type="button"
+              onClick={() => logout?.()}
+              className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <button
+            type="button"
+            onClick={() => login?.()}
+            className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-semibold text-gray-900 bg-gray-50 transition-colors hover:bg-gray-100"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-xs text-white">
-              🐹
-            </div>
-            Profile
-          </Link>
+            Log In
+          </button>
         )}
       </div>
     </aside>

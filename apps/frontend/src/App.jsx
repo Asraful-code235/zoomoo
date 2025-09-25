@@ -37,15 +37,15 @@ function App() {
           <Routes>
             <Route
               path="/"
-              element={<div className="pt-3 md:pt-4 pb-8">{authenticated ? <Dashboard /> : <Welcome />}</div>}
+              element={<div className="pt-3 md:pt-4 pb-8"><Dashboard /></div>}
             />
             <Route
               path="/streams"
-              element={<div className="pt-3 md:pt-4 pb-8">{authenticated ? <StreamGrid /> : <Welcome />}</div>}
+              element={<div className="pt-3 md:pt-4 pb-8"><StreamGrid /></div>}
             />
             <Route
               path="/market"
-              element={<div className="pt-3 md:pt-4 pb-8">{authenticated ? <StreamGrid /> : <Welcome />}</div>}
+              element={<div className="pt-3 md:pt-4 pb-8"><StreamGrid /></div>}
             />
             <Route
               path="/streams/:streamId"
