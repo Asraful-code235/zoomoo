@@ -1,29 +1,21 @@
 import { cloneElement, isValidElement } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
-import {
-  LayoutDashboard,
-  Trophy,
-  Wallet,
-  Users,
-  TrendingUp,
-  Activity
-} from 'lucide-react';
 
 export default function Sidebar({ logo }) {
   const { authenticated } = usePrivy();
   const location = useLocation();
 
   const navItems = [
-    { to: "/", label: "Live", icon: Activity },
-    { to: "/streams", label: "Feed", icon: TrendingUp },
-    { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
-    { to: "/", label: "Dashboard", icon: LayoutDashboard },
+    { to: "/", label: "Live", icon: "/live.svg" },
+    { to: "/streams", label: "Feed", icon: "/feed.svg" },
+    { to: "/leaderboard", label: "Leaderboard", icon: "/leaderboard.svg" },
+    { to: "/", label: "Dashboard", icon: "/dashboard.svg" },
   ];
 
   const footerItems = [
-    { to: "/buy-coins", label: "Buy coins", icon: Wallet },
-    { to: "/community", label: "Community", icon: Users },
+    { to: "/buy-coins", label: "Buy coins", icon: "/buy_coin.svg" },
+    { to: "/community", label: "Community", icon: "/community.svg" },
   ];
 
   const renderIcon = (icon) => {
@@ -56,7 +48,7 @@ export default function Sidebar({ logo }) {
       {/* Logo */}
       <div className="px-2 py-4 text-center">
         <Link to="/" className="block">
-          <img src={logo} alt="Furcast" className="h-8 w-auto mx-auto" />
+          <img src={logo} alt="Furcast" className="h-14 w-auto mx-auto" />
         </Link>
       </div>
 
