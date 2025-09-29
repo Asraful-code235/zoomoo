@@ -124,7 +124,7 @@ export default function StreamCard({
 
   return (
     <div
-      className={`bg-white shadow-sm border h-full border-gray-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-300 rounded-none cursor-pointer`}
+      className={`bg-white dark:bg-gray-800 shadow-sm border h-full border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-600 rounded-none cursor-pointer`}
       onClick={() => onNavigate(stream.id)}
     >
       <button
@@ -196,7 +196,7 @@ export default function StreamCard({
       </button>
 
       <div className="p-4 flex flex-col">
-        <h3 className="text-sm font-medium text-gray-900 mb-2 line-clamp-2">
+        <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2 line-clamp-2">
           {stream.hamster_name || stream.name || "Hamster Stream"}
         </h3>
         <div className="flex items-center justify-between mb-6">
@@ -228,8 +228,8 @@ export default function StreamCard({
               Amount (USD)
             </label>
             <div className="flex items-center gap-3">
-              <div className="flex items-center bg-white border border-gray-200 shadow-sm px-3 rounded-none">
-                <span className="text-gray-500 mr-1">$</span>
+              <div className="flex items-center bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm px-3 rounded-none">
+                <span className="text-gray-500 dark:text-gray-400 mr-1">$</span>
                 <input
                   type="number"
                   value={amount}
@@ -301,12 +301,12 @@ export default function StreamCard({
         <div className="md:hidden fixed inset-0 z-50" onClick={() => setMode(null)}>
           <div className="absolute inset-0 bg-black/40" />
           <div
-            className="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl p-4 shadow-2xl"
+            className="absolute bottom-0 inset-x-0 bg-white dark:bg-gray-800 rounded-t-2xl p-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-gray-900">Place bet</div>
-              <button type="button" className="text-sm text-gray-500" onClick={() => setMode(null)}>
+              <div className="text-sm font-semibold text-gray-900 dark:text-white">Place bet</div>
+              <button type="button" className="text-sm text-gray-500 dark:text-gray-400" onClick={() => setMode(null)}>
                 Cancel
               </button>
             </div>
@@ -322,8 +322,8 @@ export default function StreamCard({
               )}
             </div>
             <div className="flex items-center gap-3 mb-3">
-              <div className="flex items-center bg-white border border-gray-200 shadow-sm px-3 rounded-md">
-                <span className="text-gray-500 mr-1">$</span>
+              <div className="flex items-center bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm px-3 rounded-md">
+                <span className="text-gray-500 dark:text-gray-400 mr-1">$</span>
                 <input
                   type="number"
                   inputMode="decimal"

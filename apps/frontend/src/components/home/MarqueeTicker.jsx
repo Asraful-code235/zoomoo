@@ -19,26 +19,26 @@ export default function MarqueeTicker() {
   const renderTickerChip = (item) => (
     <span
       key={item.key}
-      className="inline-flex h-9 items-center gap-2 rounded-full border border-emerald-200/70 bg-emerald-50/60 px-3 text-xs font-semibold text-emerald-900 shadow-sm sm:h-10 sm:text-sm"
+      className="inline-flex h-9 items-center gap-2 rounded-full border border-emerald-200/70 dark:border-emerald-700/70 bg-emerald-50/60 dark:bg-emerald-900/20 px-3 text-xs font-semibold text-emerald-900 dark:text-emerald-100 shadow-sm sm:h-10 sm:text-sm"
     >
       <img
         src={item.avatarUrl}
         alt=""
         aria-hidden
-        className="h-6 w-6 rounded-full border border-emerald-200/50"
+        className="h-6 w-6 rounded-full border border-emerald-200/50 dark:border-emerald-700/50"
       />
-      <span className="text-emerald-800/80">@{item.userHandle?.replace(/^@/, "")}</span>
-      <span className="text-emerald-700/80">bet</span>
-      <span className="text-emerald-900">{Number(item.amount).toLocaleString()}&nbsp;USDC</span>
-      <span className="text-emerald-700/80">on</span>
-      <span className="truncate text-emerald-900/90 max-w-[220px] sm:max-w-[320px]">
+      <span className="text-emerald-800/80 dark:text-emerald-200/80">@{item.userHandle?.replace(/^@/, "")}</span>
+      <span className="text-emerald-700/80 dark:text-emerald-300/80">bet</span>
+      <span className="text-emerald-900 dark:text-emerald-100">{Number(item.amount).toLocaleString()}&nbsp;USDC</span>
+      <span className="text-emerald-700/80 dark:text-emerald-300/80">on</span>
+      <span className="truncate text-emerald-900/90 dark:text-emerald-100/90 max-w-[220px] sm:max-w-[320px]">
         {item.marketQuestion}
       </span>
       <span
         className={`inline-flex h-6 items-center rounded-full px-2 text-[11px] font-semibold ${
           item.side === "YES"
-            ? "bg-emerald-600/10 text-emerald-700"
-            : "bg-rose-600/10 text-rose-700"
+            ? "bg-emerald-600/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+            : "bg-rose-600/10 dark:bg-rose-500/20 text-rose-700 dark:text-rose-300"
         }`}
       >
         {item.side}
@@ -47,7 +47,7 @@ export default function MarqueeTicker() {
   );
 
   return (
-    <section className="relative overflow-hidden border-y border-gray-200 bg-white">
+    <section className="relative overflow-hidden border-y border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 transition-colors duration-200">
       <div className="flex items-center gap-3 px-3 py-2 sm:px-4 sm:py-3">
         <span className="hidden whitespace-nowrap rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-gray-500 sm:inline-flex">
           High rollers

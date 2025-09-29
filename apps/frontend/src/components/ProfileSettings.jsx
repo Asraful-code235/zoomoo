@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { usePrivy } from '@privy-io/react-auth';
 import { useSolanaWallets } from '@privy-io/react-auth';
+import { useTheme } from '../hooks/useTheme';
 
 export default function ProfileSettings({ user }) {
   const { exportWallet } = useSolanaWallets();
+  const { theme, setTheme } = useTheme();
   const [preferences, setPreferences] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -124,10 +126,9 @@ export default function ProfileSettings({ user }) {
     updatePreferences({ [field]: value });
   };
 
-  const handleThemeChange = (theme) => {
-    updatePreferences({ theme });
-    // Apply theme immediately
-    document.documentElement.setAttribute('data-theme', theme);
+  const handleThemeChange = (newTheme) => {
+    setTheme(newTheme);
+    updatePreferences({ theme: newTheme });
   };
 
   const handleBackupWallet = async () => {
@@ -244,32 +245,32 @@ export default function ProfileSettings({ user }) {
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Profile Info */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-200">
-          <h3 className="text-base font-semibold text-gray-900 m-0">Profile</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white m-0">Profile</h3>
         </div>
         <div className="p-6">
           {!editingProfile ? (
             <div className="space-y-4 text-sm">
               <div className="flex items-center justify-between">
                 <div>
-                  <div className="text-gray-600">Display Name</div>
-                  <div className="text-gray-900 font-medium">{user.display_name || "Not set"}</div>
+                  <div className="text-gray-600 dark:text-gray-400">Display Name</div>
+                  <div className="text-gray-900 dark:text-white font-medium">{user.display_name || "Not set"}</div>
                 </div>
                 <button
                   onClick={() => setEditingProfile(true)}
-                  className="px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-sm font-semibold hover:bg-gray-100"
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-sm font-semibold hover:bg-gray-100 dark:hover:bg-gray-600 text-gray-900 dark:text-white"
                 >
                   Edit
                 </button>
               </div>
               <div>
-                <div className="text-gray-600">Bio</div>
-                <div className="text-gray-900 font-medium">{user.bio || "Not set"}</div>
+                <div className="text-gray-600 dark:text-gray-400">Bio</div>
+                <div className="text-gray-900 dark:text-white font-medium">{user.bio || "Not set"}</div>
               </div>
               <div>
-                <div className="text-gray-600">Email</div>
-                <div className="text-gray-900 font-medium">{user.email?.address || "No email"}</div>
+                <div className="text-gray-600 dark:text-gray-400">Email</div>
+                <div className="text-gray-900 dark:text-white font-medium">{user.email?.address || "No email"}</div>
               </div>
             </div>
           ) : (
@@ -316,20 +317,20 @@ export default function ProfileSettings({ user }) {
       </div>
 
       {/* Appearance */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-200">
-          <h3 className="text-base font-semibold text-gray-900 m-0">Appearance</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white m-0">Appearance</h3>
         </div>
         <div className="p-6">
-          <div className="text-sm text-gray-600 mb-3">Theme</div>
+          <div className="text-sm text-gray-600 dark:text-gray-400 mb-3">Theme</div>
           <div className="flex gap-3">
             <button
               onClick={() => handleThemeChange("light")}
               disabled={saving}
               className={`flex-1 px-4 py-3 rounded-lg font-semibold border ${
-                preferences?.theme === "light"
-                  ? "bg-gray-50 border-gray-800 text-gray-900"
-                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                theme === "light"
+                  ? "bg-gray-50 dark:bg-gray-800 border-gray-800 dark:border-gray-600 text-gray-900 dark:text-white"
+                  : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
               }`}
             >
               Light
@@ -338,9 +339,9 @@ export default function ProfileSettings({ user }) {
               onClick={() => handleThemeChange("dark")}
               disabled={saving}
               className={`flex-1 px-4 py-3 rounded-lg font-semibold border ${
-                preferences?.theme === "dark"
-                  ? "bg-gray-900 text-white border-gray-900"
-                  : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50"
+                theme === "dark"
+                  ? "bg-gray-900 dark:bg-gray-800 text-white border-gray-900 dark:border-gray-600"
+                  : "bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600"
               }`}
             >
               Dark
@@ -350,9 +351,9 @@ export default function ProfileSettings({ user }) {
       </div>
 
       {/* Notifications */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-200">
-          <h3 className="text-base font-semibold text-gray-900 m-0">Notifications</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white m-0">Notifications</h3>
         </div>
         <div className="p-6 space-y-5">
           {[
@@ -377,8 +378,8 @@ export default function ProfileSettings({ user }) {
           ].map((row) => (
             <div key={row.key} className="flex items-center justify-between">
               <div>
-                <div className="text-sm font-medium text-gray-900">{row.title}</div>
-                <div className="text-xs text-gray-600">{row.desc}</div>
+                <div className="text-sm font-medium text-gray-900 dark:text-white">{row.title}</div>
+                <div className="text-xs text-gray-600 dark:text-gray-400">{row.desc}</div>
               </div>
               <label className="relative inline-flex cursor-pointer items-center">
                 <input
@@ -388,7 +389,7 @@ export default function ProfileSettings({ user }) {
                   checked={preferences?.[row.key] || false}
                   onChange={(e) => handleToggleChange(row.key, e.target.checked)}
                 />
-                <span className="h-6 w-11 rounded-full bg-gray-200 transition peer-checked:bg-green-600 after:absolute after:h-5 after:w-5 after:rounded-full after:bg-white after:translate-x-0 after:transition after:top-0.5 after:left-0.5 peer-checked:after:translate-x-5" />
+                <span className="h-6 w-11 rounded-full bg-gray-200 dark:bg-gray-700 transition peer-checked:bg-green-600 dark:peer-checked:bg-green-500 after:absolute after:h-5 after:w-5 after:rounded-full after:bg-white after:translate-x-0 after:transition after:top-0.5 after:left-0.5 peer-checked:after:translate-x-5" />
               </label>
             </div>
           ))}
@@ -396,9 +397,9 @@ export default function ProfileSettings({ user }) {
       </div>
 
       {/* Data & Wallet Security */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="px-5 py-4 border-b border-gray-200">
-          <h3 className="text-base font-semibold text-gray-900 m-0">Data & Security</h3>
+      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-base font-semibold text-gray-900 dark:text-white m-0">Data & Security</h3>
         </div>
         <div className="p-6 space-y-6">
           <div className="flex items-center justify-between">

@@ -67,12 +67,12 @@ export default function MobileSidebar({ isOpen, onClose }) {
   return (
     <>
       <div
-        className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm lg:hidden"
+        className="fixed inset-0 z-[60] bg-black/40 dark:bg-black/60 backdrop-blur-sm lg:hidden"
         onClick={onClose}
       />
 
       <aside
-        className={`fixed top-0 right-0 z-[70] h-full w-full bg-white transition-transform duration-300 ease-in-out lg:hidden ${
+        className={`fixed top-0 right-0 z-[70] h-full w-full bg-white dark:bg-gray-900 transition-transform duration-300 ease-in-out lg:hidden ${
           isOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -80,7 +80,7 @@ export default function MobileSidebar({ isOpen, onClose }) {
           <div className="flex items-center justify-between px-6 py-5">
             {authenticated && user ? (
               <div className="flex items-center gap-3">
-                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-900 text-white">
+                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gray-900 dark:bg-gray-700 text-white">
                   {profileImage ? (
                     <img
                       src={profileImage}
@@ -91,11 +91,11 @@ export default function MobileSidebar({ isOpen, onClose }) {
                     <User className="h-5 w-5" />
                   )}
                 </div>
-                <span className="text-sm font-semibold text-gray-900">{displayName}</span>
+                <span className="text-sm font-semibold text-gray-900 dark:text-white">{displayName}</span>
                 {truncatedAddress && (
                   <button
                     onClick={handleCopy}
-                    className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100"
+                    className="rounded-full p-2 text-gray-400 dark:text-gray-500 transition hover:bg-gray-100 dark:hover:bg-gray-800"
                     aria-label="Copy address"
                   >
                     <Copy className="h-4 w-4" />
@@ -103,12 +103,12 @@ export default function MobileSidebar({ isOpen, onClose }) {
                 )}
               </div>
             ) : (
-              <span className="text-sm font-semibold text-gray-900">Menu</span>
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">Menu</span>
             )}
 
             <button
               onClick={onClose}
-              className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100"
+              className="rounded-full p-2 text-gray-400 dark:text-gray-500 transition hover:bg-gray-100 dark:hover:bg-gray-800"
               aria-label="Close menu"
             >
               <X className="h-5 w-5" />
@@ -116,14 +116,14 @@ export default function MobileSidebar({ isOpen, onClose }) {
           </div>
 
           <div className="flex-1 overflow-y-auto px-6 py-6">
-            <nav className="space-y-6 text-gray-900">
+            <nav className="space-y-6 text-gray-900 dark:text-white">
               <div className="space-y-4">
                 {navigationItems.map(({ to, label, icon: Icon }) => (
                   <Link
                     key={to}
                     to={to}
                     onClick={handleNav}
-                    className="flex items-center gap-3 text-sm font-medium transition hover:text-gray-600"
+                    className="flex items-center gap-3 text-sm font-medium transition hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <Icon className="h-5 w-5" />
                     {label}
@@ -131,13 +131,13 @@ export default function MobileSidebar({ isOpen, onClose }) {
                 ))}
               </div>
 
-              <div className="space-y-4 border-t border-gray-200 pt-4">
+              <div className="space-y-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                 {secondaryItems.map(({ to, label, icon: Icon }) => (
                   <Link
                     key={to}
                     to={to}
                     onClick={handleNav}
-                    className="flex items-center gap-3 text-sm font-medium transition hover:text-gray-600"
+                    className="flex items-center gap-3 text-sm font-medium transition hover:text-gray-600 dark:hover:text-gray-300"
                   >
                     <Icon className="h-5 w-5" />
                     {label}
@@ -147,7 +147,7 @@ export default function MobileSidebar({ isOpen, onClose }) {
                 {authenticated && (
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-3 text-sm font-semibold text-red-500 transition hover:text-red-600"
+                    className="flex items-center gap-3 text-sm font-semibold text-red-500 dark:text-red-400 transition hover:text-red-600 dark:hover:text-red-300"
                   >
                     <LogOut className="h-5 w-5" />
                     Logout

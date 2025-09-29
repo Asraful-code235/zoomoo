@@ -1,9 +1,12 @@
 import { cloneElement, isValidElement } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
+import { Moon, Sun } from 'lucide-react';
+import { useTheme } from '../hooks/useTheme';
 
 export default function Sidebar({ logo }) {
   const { authenticated, login, logout } = usePrivy();
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation();
 
   const navItems = [
@@ -44,7 +47,7 @@ export default function Sidebar({ logo }) {
   };
 
   return (
-    <aside className="hidden lg:flex lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 w-28 shrink-0 bg-white border-r border-gray-200 flex-col shadow-sm">
+    <aside className="hidden lg:flex lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 w-28 shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex-col shadow-sm transition-colors duration-200">
       {/* Logo */}
       <div className="px-2 py-4 text-center">
         <Link to="/" className="block">
@@ -62,8 +65,8 @@ export default function Sidebar({ logo }) {
               to={to}
               className={`flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-xs font-medium text-center transition-colors ${
                 isActive
-                  ? 'bg-gray-100 text-gray-900'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white'
+                  : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
             >
               {renderIcon(icon)}
@@ -79,21 +82,35 @@ export default function Sidebar({ logo }) {
           <Link
             key={to}
             to={to}
-            className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+            className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-medium text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
           >
             {renderIcon(icon)}
             {label}
           </Link>
         ))}
 
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-medium text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? (
+            <Sun className="w-6 h-6" />
+          ) : (
+            <Moon className="w-6 h-6" />
+          )}
+          Theme
+        </button>
+
         {/* Profile / Auth Controls */}
         {authenticated ? (
           <>
             <Link
               to="/profile"
-              className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+              className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-medium text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 text-xs text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 dark:bg-gray-700 text-xs text-white">
                 🐹
               </div>
               Profile
@@ -101,7 +118,7 @@ export default function Sidebar({ logo }) {
             <button
               type="button"
               onClick={() => logout?.()}
-              className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-semibold text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+              className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-semibold text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300"
             >
               Logout
             </button>
@@ -110,7 +127,7 @@ export default function Sidebar({ logo }) {
           <button
             type="button"
             onClick={() => login?.()}
-            className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-semibold text-gray-900 bg-gray-50 transition-colors hover:bg-gray-100"
+            className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-semibold text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             Log In
           </button>
