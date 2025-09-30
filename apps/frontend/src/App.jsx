@@ -9,6 +9,7 @@ import Dashboard from './components/home/Dashboard'
 import AdminPanel from './components/AdminPanel'
 import Profile from './components/Profile'
 import StreamGrid from './components/StreamGrid'
+import MarketPage from './components/markets/MarketPage'
 import Welcome from './components/home/Welcome'
 import SingleStreamView from './components/streams/SingleStreamView'
 import Leaderboard from './components/Leaderboard'
@@ -34,7 +35,7 @@ function App() {
           tagline={authenticated ? "Syncing your room & wallet…" : "Spinning up hamster cams…"}
         />
 
-        <div className="min-h-screen w-full bg-white dark:bg-gray-900 overflow-x-hidden transition-colors duration-200">
+        <div className="min-h-screen w-full bg-white dark:bg-[#0D0F11] overflow-x-hidden transition-colors duration-200">
           <Navigation logo={logo} />
           <Sidebar logo={logo} />
 
@@ -54,7 +55,7 @@ function App() {
             />
             <Route
               path="/market"
-              element={<div className="pt-3 md:pt-4 pb-8"><StreamGrid /></div>}
+              element={<div className="pt-3 md:pt-4 pb-8"><MarketPage /></div>}
             />
             <Route
               path="/streams/:streamId"

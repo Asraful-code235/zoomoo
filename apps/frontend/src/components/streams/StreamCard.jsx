@@ -6,13 +6,11 @@ import { usePrivy } from "@privy-io/react-auth";
 
 export default function StreamCard({
   stream,
-  index,
   authenticated,
   onNavigate,
   pickActiveMarket,
   remainingMs,
   formatUSD,
-  mySide,
 }) {
   const [mode, setMode] = useState(null);
   const [amount, setAmount] = useState(20);
@@ -37,8 +35,6 @@ export default function StreamCard({
   const volume = Number(activeMarket?.total_volume || total || 0);
 
   const msLeft = activeMarket ? remainingMs(activeMarket) : null;
-  const ended = typeof msLeft === "number" && msLeft === 0;
-  const urgent = typeof msLeft === "number" && msLeft > 0 && msLeft <= 30000;
 
   const timerLabel = typeof msLeft === "number"
     ? `${Math.floor(msLeft / 60000).toString().padStart(2, "0")}:${Math.floor((msLeft / 1000) % 60)
@@ -46,29 +42,6 @@ export default function StreamCard({
         .padStart(2, "0")}`
     : null;
 
-  let badge = { label: "Standby", tone: "standby" };
-  if (activeMarket) {
-    if (activeMarket.ends_at && typeof msLeft === "number") {
-      const mm = Math.floor(msLeft / 60000)
-        .toString()
-        .padStart(2, "0");
-      const ss = Math.floor((msLeft / 1000) % 60)
-        .toString()
-        .padStart(2, "0");
-      badge = ended
-        ? { label: "Ended", tone: "ended" }
-        : { label: `${mm}:${ss}`, tone: urgent ? "urgent" : "active" };
-    } else {
-      badge = { label: "Active", tone: "active" };
-    }
-  }
-  const badgeClass =
-    {
-      active: "bg-emerald-600 text-white",
-      urgent: "bg-amber-600 text-white animate-pulse",
-      ended: "bg-gray-700 text-white",
-      standby: "bg-gray-800/80 text-white",
-    }[badge.tone] || "bg-gray-800/80 text-white";
 
   const handleYes = (e) => {
     e.stopPropagation();
@@ -169,30 +142,6 @@ export default function StreamCard({
             )}
           </div>
         )}
-        {/* Mobile floating YES/NO buttons over the video */}
-        <div className="absolute inset-x-3 bottom-3 md:hidden pointer-events-none">
-          <div className="grid grid-cols-2 gap-2">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={handleYes}
-              onMouseDown={stopPropagation}
-              className="pointer-events-auto h-11 rounded-md bg-[#ECECFD] text-emerald-700 text-sm font-semibold flex items-center justify-center"
-            >
-              YES · {yesPct}¢
-            </div>
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={handleNo}
-              onMouseDown={stopPropagation}
-              className="pointer-events-auto h-11 rounded-md bg-[#FFF1F2] text-rose-600 text-sm font-semibold flex items-center justify-center"
-            >
-              NO · {100 - yesPct}¢
-            </div>
-          </div>
-        </div>
-
       </button>
 
       <div className="p-4 flex flex-col">
@@ -206,18 +155,18 @@ export default function StreamCard({
         </div>
 
         {mode == null ? (
-          <div className="hidden md:grid grid-cols-2 gap-3 mt-auto">
+          <div className="grid grid-cols-2 gap-3 mt-auto">
             <button
               type="button"
               onClick={handleYes}
-              className="w-full text-sm font-semibold h-11 px-3 text-emerald-700 bg-[#ECECFD] rounded-none border border-transparent"
+              className="flex flex-row items-center justify-center py-2.5 text-sm font-semibold text-emerald-700 bg-[#ECECFD] rounded-[2px] border border-transparent"
             >
               YES · {yesPct}¢
             </button>
             <button
               type="button"
               onClick={handleNo}
-              className="w-full text-sm font-semibold h-11 px-3 text-rose-600 bg-[#FFF1F2] rounded-none border border-transparent"
+              className="flex items-center justify-center py-2.5  text-sm font-semibold text-rose-600 bg-[#FFF1F2] rounded-[2px] border border-transparent"
             >
               NO · {100 - yesPct}¢
             </button>
@@ -347,12 +296,12 @@ export default function StreamCard({
               type="button"
               onClick={handlePlaceBet}
               disabled={placing}
-              className={`w-full rounded-md text-sm font-bold h-11 border shadow-sm transition-opacity ${
+              className={`flex flex-col items-center justify-center w-[135px] h-[38px] rounded-[2px] text-sm font-bold border shadow-sm transition-opacity ${
                 placing ? "opacity-50 cursor-not-allowed" : ""
               } ${
                 mode === "YES"
-                  ? "bg-[#ECECFD] text-emerald-700 border-transparent"
-                  : "bg-[#FFF1F2] text-rose-600 border-transparent"
+                  ? "py-[1px] px-[68.69px] bg-[#ECECFD] text-emerald-700 border-transparent"
+                  : "py-[1px] px-[71.37px] bg-[#FFF1F2] text-rose-600 border-transparent"
               }`}
             >
               {placing ? "Placing..." : confirmLabel}

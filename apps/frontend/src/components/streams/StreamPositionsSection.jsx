@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import {
-  chartTickFormatter,
   formatCents,
   formatCurrency,
   parseSide,
@@ -100,7 +99,9 @@ const normalisePosition = (position, marketLookup) => {
   const noVolume = Number(market.no_volume ?? 0);
   const totalVolume = yesVolume + noVolume;
   const yesPrice =
-    totalVolume > 0 ? yesVolume / totalVolume : Number(market.yes_price ?? 0.5);
+    totalVolume > 0
+      ? yesVolume / totalVolume
+      : Number(market.yes_price ?? 0.5);
   const currentPrice = isYes ? yesPrice : 1 - yesPrice;
 
   const pnlValue = currentPrice * shares - amount;
@@ -112,6 +113,7 @@ const normalisePosition = (position, marketLookup) => {
     market: market.question || "Market",
     side: isYes ? "YES" : "NO",
     size: amount,
+    shares,
     entryCents: Math.round(entryPrice * 100),
     priceCents: Math.round(currentPrice * 100),
     pnlValue,
@@ -133,11 +135,15 @@ const normaliseOrder = (entry) => {
   };
 };
 
+const sideBadgeClass = (value) =>
+  value === "YES"
+    ? "border-[#ECECFD] bg-[#ECECFD] text-[#096]"
+    : "border-[#FFC9C999] bg-[#FFC9C999] text-[#F54900]";
+
 export default function StreamPositionsSection({
   positions,
   positionsLoading,
   userHistory,
-  onRefresh,
 }) {
   const [activeTab, setActiveTab] = useState("positions");
 
@@ -175,137 +181,111 @@ export default function StreamPositionsSection({
     }
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="space-y-3 md:hidden">
           {tablePositions.map((row) => {
             const pnlPositive = row.pnlValue >= 0;
             const pnlAmount = toCurrency(Math.abs(row.pnlValue));
-            const signedPnl = `${pnlPositive ? "+" : "-"}${pnlAmount}`;
+            const chancePercent = Math.min(
+              100,
+              Math.max(0, Math.round(row.priceCents ?? 0))
+            );
 
             return (
               <div
                 key={row.id}
-                className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+                className="rounded-[4px] border border-gray-200 bg-white dark:bg-gray-800 p-4"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <p className="text-sm font-semibold text-gray-900">
-                    {row.market}
-                  </p>
+                <div className="flex items-start gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-[4px] bg-blue-100 dark:bg-blue-900 text-sm font-semibold text-blue-700 dark:text-blue-300">
+                    {row.market.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                      {row.market}
+                    </p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate">
+                      {toCurrency(row.size)} • Entry {formatCents(row.entryCents)}
+                    </p>
+                  </div>
                   <span
-                    className={`inline-flex min-w-[44px] items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium ${
-                      row.side === "YES"
-                        ? "bg-[#ECECFD] text-[#1D4ED8]"
-                        : "bg-[#FFE8EC] text-[#DB2777]"
-                    }`}
+                    className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold tracking-wide ${sideBadgeClass(
+                      row.side
+                    )}`}
                   >
                     {row.side}
                   </span>
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-gray-500">
+
+                <div className="mt-4 flex items-center justify-between">
                   <div>
-                    <p className="font-semibold uppercase tracking-wide text-gray-500">
-                      Size
+                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                      Chance
                     </p>
-                    <p className="mt-1 text-sm font-semibold text-gray-900">
-                      {toCurrency(row.size)}
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {chancePercent}%
                     </p>
                   </div>
-                  <div>
-                    <p className="font-semibold uppercase tracking-wide text-gray-500">
-                      Entry
-                    </p>
-                    <p className="mt-1 text-sm text-gray-700">
-                      {formatCents(row.entryCents)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold uppercase tracking-wide text-gray-500">
-                      Price
-                    </p>
-                    <p className="mt-1 text-sm text-gray-700">
-                      {formatCents(row.priceCents)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold uppercase tracking-wide text-gray-500">
-                      PnL
-                    </p>
+                  <div className="text-right">
                     <p
-                      className={`mt-1 text-sm font-semibold ${
-                        pnlPositive ? "text-emerald-600" : "text-rose-600"
+                      className={`text-sm font-semibold ${
+                        pnlPositive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
                       }`}
                     >
-                      {signedPnl}
+                      {`${pnlPositive ? "+" : "-"}${pnlAmount}`}
                     </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">PnL</p>
                   </div>
-                </div>
-                <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
-                  <button
-                    type="button"
-                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50 sm:w-auto"
-                  >
-                    Close 50%
-                  </button>
-                  <button
-                    type="button"
-                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50 sm:w-auto"
-                  >
-                    Close 100%
-                  </button>
                 </div>
               </div>
             );
           })}
         </div>
 
-        <div className="hidden overflow-hidden rounded-2xl bg-white md:block">
-          <table className="w-full bg-white text-sm">
-            <thead className="border-b pb-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-              <tr>
-                <th className="py-3">Market</th>
-                <th className="py-3">Side</th>
-                <th className="py-3">Size ($)</th>
-                <th className="py-3">Entry</th>
-                <th className="py-3">Price</th>
-                <th className="py-3">PnL</th>
-                <th className="py-3 text-right">Action</th>
+        <div className="hidden overflow-hidden rounded-[4px] bg-white dark:bg-transparent md:block">
+          <table className="w-full">
+            <thead className=" dark:bg-[#141518] text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
+              <tr className="dark:bg-transparent border-b">
+                <th className="px-4 py-3 text-left font-semibold">Market</th>
+                <th className="px-4 py-3 text-left font-semibold">Outcome</th>
+                <th className="px-4 py-3 text-left font-semibold">Size ($)</th>
+                <th className="px-4 py-3 text-left font-semibold">Entry</th>
+                <th className="px-4 py-3 text-left font-semibold">Shares</th>
+                <th className="px-4 py-3 text-left font-semibold">PnL</th>
+                <th className="px-4 py-3 text-right font-semibold">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-[#18191d]">
               {tablePositions.map((row) => {
                 const pnlPositive = row.pnlValue >= 0;
                 const pnlAmount = toCurrency(Math.abs(row.pnlValue));
 
                 return (
-                  <tr key={row.id} className="transition-colors hover:bg-gray-50">
-                    <td className="py-3 text-sm font-medium text-gray-900">
-                      <span className="line-clamp-2 leading-snug">
-                        {row.market}
-                      </span>
+                  <tr key={row.id} className="transition-colors dark:hover:bg-[#18191d] ">
+                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <span className="line-clamp-1 leading-snug">{row.market}</span>
                     </td>
-                    <td className="py-3">
+                    <td className="px-4 py-3">
                       <span
-                        className={`inline-flex min-w-[44px] items-center justify-center px-3 py-1.5 text-xs font-medium ${
-                          row.side === "YES"
-                            ? "bg-[#ECECFD] text-[#1D4ED8]"
-                            : "bg-[#FFE8EC] text-[#DB2777]"
-                        }`}
+                        className={`inline-flex min-w-[42px] items-center justify-center rounded px-2.5 py-1 text-xs font-semibold ${sideBadgeClass(
+                          row.side
+                        )}`}
                       >
                         {row.side}
                       </span>
                     </td>
-                    <td className="py-3 text-sm font-medium text-gray-900">
+                    <td className="px-4 py-3 text-sm font-semibold text-gray-900 dark:text-gray-100">
                       {toCurrency(row.size)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                       {formatCents(row.entryCents)}
                     </td>
-                    <td className="px-4 py-3 text-sm text-gray-600">
+                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
                       {formatCents(row.priceCents)}
                     </td>
                     <td
-                      className={`px-4 py-3 text-sm font-medium ${
-                        pnlPositive ? "text-emerald-600" : "text-rose-600"
+                      className={`px-4 py-3 text-sm font-semibold ${
+                        pnlPositive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
                       }`}
                     >
                       {`${pnlPositive ? "+" : "-"}${pnlAmount}`}
@@ -314,13 +294,13 @@ export default function StreamPositionsSection({
                       <div className="flex justify-end gap-2">
                         <button
                           type="button"
-                          className="inline-flex items-center rounded-md border border-gray-200 bg-white px-2.5 py-2 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50"
+                          className="inline-flex items-center rounded-[4px] border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 transition hover:bg-gray-50 dark:hover:bg-gray-600"
                         >
                           Close 50%
                         </button>
                         <button
                           type="button"
-                          className="inline-flex items-center rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-600 shadow-sm transition hover:bg-gray-50"
+                          className="inline-flex items-center rounded-[4px] border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 transition hover:bg-gray-50 dark:hover:bg-gray-600"
                         >
                           Close 100%
                         </button>
@@ -337,77 +317,51 @@ export default function StreamPositionsSection({
   };
 
   const renderOrders = () => (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="space-y-3 md:hidden">
         {tableOrders.map((row) => {
-          const payoutPositive = row.payout >= row.size;
-          const outcomeIsYes = row.outcome?.toUpperCase() === "YES";
-
           return (
             <div
               key={row.id}
-              className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
+              className="rounded-[4px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
             >
-              <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-semibold text-gray-900">
-                  {row.market}
-                </p>
+              <div className="flex items-start gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[4px] bg-gray-100 dark:bg-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                  {row.market.charAt(0).toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                    {row.market}
+                  </p>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate">
+                    {toCurrency(row.size)}
+                  </p>
+                </div>
                 <span
-                  className={`inline-flex min-w-[44px] items-center justify-center rounded-full px-3 py-1.5 text-xs font-medium ${
-                    row.side === "YES"
-                      ? "bg-[#ECECFD] text-[#1D4ED8]"
-                      : "bg-[#FFE8EC] text-[#DB2777]"
-                  }`}
+                  className={`inline-flex items-center rounded border px-3 py-1 text-xs font-semibold tracking-wide ${sideBadgeClass(
+                    row.side
+                  )}`}
                 >
                   {row.side}
                 </span>
               </div>
-              <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-2 text-xs text-gray-500">
+
+              <div className="mt-4 flex items-center justify-between">
                 <div>
-                  <p className="font-semibold uppercase tracking-wide text-gray-500">
-                    Size
+                  <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
+                    Shares
                   </p>
-                  <p className="mt-1 text-sm font-semibold text-gray-900">
-                    {toCurrency(row.size)}
+                  <p className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                    {formatCents(row.priceCents)}
                   </p>
                 </div>
                 <div>
-                  <p className="font-semibold uppercase tracking-wide text-gray-500">
-                    Outcome
-                  </p>
-                  {row.outcome ? (
-                    <span
-                      className={`mt-1 inline-flex min-w-[44px] items-center justify-center rounded-full px-3 py-1.5 text-xs font-semibold ${
-                        outcomeIsYes
-                          ? "bg-[#ECECFD] text-[#1D4ED8]"
-                          : "bg-[#FFE8EC] text-[#DB2777]"
-                      }`}
-                    >
-                      {row.outcome}
-                    </span>
-                  ) : (
-                    <p className="mt-1 text-sm text-gray-600">—</p>
-                  )}
-                </div>
-                <div>
-                  <p className="font-semibold uppercase tracking-wide text-gray-500">
-                    Payout
-                  </p>
-                  <p
-                    className={`mt-1 text-sm font-semibold ${
-                      payoutPositive ? "text-emerald-600" : "text-rose-600"
-                    }`}
+                  <button
+                    type="button"
+                    className="inline-flex items-center rounded-[4px] bg-gray-100 dark:bg-gray-700 px-4 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 transition hover:bg-gray-200 dark:hover:bg-gray-600"
                   >
-                    {toCurrency(row.payout)}
-                  </p>
-                </div>
-                <div>
-                  <p className="font-semibold uppercase tracking-wide text-gray-500">
-                    Settled
-                  </p>
-                  <p className="mt-1 text-sm text-gray-600">
-                    {row.settledAt ? chartTickFormatter(row.settledAt) : "—"}
-                  </p>
+                    Share
+                  </button>
                 </div>
               </div>
             </div>
@@ -415,68 +369,46 @@ export default function StreamPositionsSection({
         })}
       </div>
 
-      <div className="hidden overflow-hidden rounded-2xl bg-white md:block">
+      <div className="hidden overflow-hidden rounded-[4px]  bg-white dark:bg-gray-800 md:block">
         <table className="w-full text-sm">
-          <thead className="text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+          <thead className="bg-gray-50 dark:bg-gray-900 text-xs font-semibold uppercase tracking-[0.12em] text-gray-500 dark:text-gray-400">
             <tr>
-              <th className="py-3">Market</th>
-              <th className="py-3">Side</th>
-              <th className="py-3">Size ($)</th>
-              <th className="py-3">Outcome</th>
-              <th className="py-3">Payout</th>
-              <th className="py-3">Settled</th>
+              <th className="px-6 py-3 text-left">Market</th>
+              <th className="px-6 py-3 text-left">Side</th>
+              <th className="px-6 py-3 text-left">Size ($)</th>
+              <th className="px-6 py-3 text-left">Shares</th>
+              <th className="px-6 py-3 text-right"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 bg-white">
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-gray-800">
             {tableOrders.map((row) => {
-              const payoutPositive = row.payout >= row.size;
-              const outcomeIsYes = row.outcome?.toUpperCase() === "YES";
-
               return (
-                <tr key={row.id} className="transition-colors hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm font-medium text-gray-900">
-                    <span className="line-clamp-2 leading-snug">
-                      {row.market}
-                    </span>
+                <tr key={row.id} className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <span className="line-clamp-2 leading-snug">{row.market}</span>
                   </td>
-                  <td className="py-3">
+                  <td className="px-6 py-4">
                     <span
-                      className={`inline-flex min-w-[44px] items-center justify-center px-3 py-1.5 text-xs font-medium ${
-                        row.side === "YES"
-                          ? "bg-[#ECECFD] text-[#1D4ED8]"
-                          : "bg-[#FFE8EC] text-[#DB2777]"
-                      }`}
+                      className={`inline-flex min-w-[52px] items-center justify-center rounded border px-3 py-1.5 text-xs font-semibold tracking-wide ${sideBadgeClass(
+                        row.side
+                      )}`}
                     >
                       {row.side}
                     </span>
                   </td>
-                  <td className="py-3 text-sm font-semibold text-gray-900">
+                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                     {toCurrency(row.size)}
                   </td>
-                  <td className="px-4 py-3 text-sm font-semibold text-gray-700">
-                    {row.outcome ? (
-                      <span
-                        className={`inline-flex min-w-[44px] items-center justify-center px-3 py-1.5 text-xs font-medium ${
-                          outcomeIsYes
-                            ? "bg-[#ECECFD] text-[#1D4ED8]"
-                            : "bg-[#FFE8EC] text-[#DB2777]"
-                        }`}
-                      >
-                        {row.outcome}
-                      </span>
-                    ) : (
-                      "—"
-                    )}
+                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                    {formatCents(row.priceCents)}
                   </td>
-                  <td
-                    className={`py-3 text-sm font-semibold ${
-                      payoutPositive ? "text-emerald-600" : "text-rose-600"
-                    }`}
-                  >
-                    {toCurrency(row.payout)}
-                  </td>
-                  <td className="py-3 text-sm text-gray-500">
-                    {row.settledAt ? chartTickFormatter(row.settledAt) : "—"}
+                  <td className="px-6 py-4 text-right">
+                    <button
+                      type="button"
+                      className="inline-flex items-center rounded-[4px] bg-gray-100 dark:bg-gray-700 px-4 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 transition hover:bg-gray-200 dark:hover:bg-gray-600"
+                    >
+                      Share
+                    </button>
                   </td>
                 </tr>
               );
@@ -488,15 +420,15 @@ export default function StreamPositionsSection({
   );
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-[#F9FAFB] shadow-sm">
-      <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 bg-[#E5E5E5] px-3 py-2 md:gap-4 md:px-4">
+    <div className="rounded-[4px] md:border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#141518]">
+      <div className="flex flex-wrap items-center gap-2 border-b border-gray-200 dark:border-gray-700 bg-[#F5F5F5] dark:bg-[#141518] px-3 py-3 md:gap-4 md:px-4 m-2 rounded">
         <button
           type="button"
           onClick={() => setActiveTab("positions")}
-          className={` px-3 py-1.5 text-sm font-medium transition ${
+          className={`rounded-[4px] px-4 py-2 text-sm font-semibold transition ${
             activeTab === "positions"
-              ? "bg-white text-[#262626]"
-              : "text-[#4A5565] hover:text-gray-800"
+              ? "bg-white dark:bg-[#DEF6A5] text-gray-900 dark:text-[#000000CC]"
+              : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 "
           }`}
         >
           Positions
@@ -504,25 +436,17 @@ export default function StreamPositionsSection({
         <button
           type="button"
           onClick={() => setActiveTab("orders")}
-          className={` px-3 py-1.5 text-sm font-medium transition ${
+          className={`rounded-[4px] px-4 py-2 text-sm font-semibold transition ${
             activeTab === "orders"
-              ? "bg-white text-[#262626]"
-              : "text-[#4A5565] hover:text-gray-800"
+              ? "bg-white dark:bg-[#DEF6A5] text-gray-900 dark:text-[#000000CC]"
+              : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
           }`}
         >
           Orders
         </button>
-        {onRefresh && (
-          <button
-            type="button"
-            onClick={onRefresh}
-            className="ml-auto text-xs font-semibold text-gray-400 transition hover:text-gray-600"
-          >
-            Refresh
-          </button>
-        )}
+
       </div>
-      <div className="bg-white p-3 md:p-4">
+      <div className="bg-white dark:bg-[#141518] px-4 md:px-6 pb-6">
         {activeTab === "positions" ? renderPositions() : renderOrders()}
       </div>
     </div>

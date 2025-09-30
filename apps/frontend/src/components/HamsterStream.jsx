@@ -57,7 +57,7 @@ export default function HamsterStream({ stream }) {
         </div>
       </div>
 
-      <div className="absolute inset-0 overflow-hidden rounded-lg bg-black">
+      <div className="absolute inset-0 overflow-hidden rounded bg-black">
         {hasPlayback ? (
           <>
             <MuxPlayer

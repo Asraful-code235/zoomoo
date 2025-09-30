@@ -1,19 +1,35 @@
-import { cloneElement, isValidElement } from 'react';
+import { cloneElement, isValidElement, useState, useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { usePrivy } from '@privy-io/react-auth';
-import { Moon, Sun } from 'lucide-react';
+import { Moon, Sun, LogOut } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 
 export default function Sidebar({ logo }) {
   const { authenticated, login, logout } = usePrivy();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    if (showProfileDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showProfileDropdown]);
 
   const navItems = [
     { to: "/market", label: "Live", icon: "/live.svg" },
     { to: "/streams", label: "Feed", icon: "/feed.svg" },
     { to: "/leaderboard", label: "Leaderboard", icon: "/leaderboard.svg" },
-    { to: "/", label: "Dashboard", icon: "/dashboard.svg" },
+    { to: "/dashboard", label: "Dashboard", icon: "/dashboard.svg" },
   ];
 
   const footerItems = [
@@ -30,7 +46,7 @@ export default function Sidebar({ logo }) {
           src={icon}
           alt=""
           aria-hidden
-          className="w-6 h-6 object-contain"
+          className="w-6 h-6 object-contain dark:invert"
         />
       );
     }
@@ -105,24 +121,45 @@ export default function Sidebar({ logo }) {
 
         {/* Profile / Auth Controls */}
         {authenticated ? (
-          <>
-            <Link
-              to="/profile"
+          <div className="relative" ref={dropdownRef}>
+            <button
+              type="button"
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
               className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-medium text-gray-600 dark:text-gray-300 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gray-900 dark:bg-gray-700 text-xs text-white">
                 🐹
               </div>
               Profile
-            </Link>
-            <button
-              type="button"
-              onClick={() => logout?.()}
-              className="flex w-full flex-col items-center justify-center gap-2 rounded-lg p-3 text-center text-xs font-semibold text-red-600 dark:text-red-400 transition-colors hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-700 dark:hover:text-red-300"
-            >
-              Logout
             </button>
-          </>
+
+            {/* Profile Dropdown */}
+            {showProfileDropdown && (
+              <div className="absolute bottom-full left-0 mb-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
+                <Link
+                  to="/profile"
+                  onClick={() => setShowProfileDropdown(false)}
+                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 dark:bg-gray-700 text-xs text-white">
+                    🐹
+                  </div>
+                  View Profile
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowProfileDropdown(false);
+                    logout?.();
+                  }}
+                  className="flex items-center gap-2 w-full px-4 py-3 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors border-t border-gray-200 dark:border-gray-700"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
         ) : (
           <button
             type="button"

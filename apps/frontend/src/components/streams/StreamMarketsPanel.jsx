@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { formatCurrency, formatEndsAt } from "./streamFormatting";
+import { formatCurrency } from "./streamFormatting";
+import BetBottomSheet from "./BetBottomSheet";
 
 const PLACEHOLDER_ACTIVE_MARKETS = [
   {
@@ -67,6 +68,9 @@ export default function StreamMarketsPanel({
   const [activeTab, setActiveTab] = useState("active");
   const [expandedMarketId, setExpandedMarketId] = useState(null);
   const [localAmount, setLocalAmount] = useState(betAmount || "");
+  const [bottomSheetOpen, setBottomSheetOpen] = useState(false);
+  const [selectedMarket, setSelectedMarket] = useState(null);
+  const [selectedSide, setSelectedSide] = useState(null);
 
   const markets = useMemo(() => {
     if (activeTab === "active") {
@@ -98,10 +102,24 @@ export default function StreamMarketsPanel({
   };
 
   const handleBet = (side, marketId) => {
-    if (!localAmount || Number(localAmount) <= 0) {
+    const market = markets.find((m) => m.id === marketId);
+    setSelectedMarket(market);
+    setSelectedSide(side ? "YES" : "NO");
+    setBottomSheetOpen(true);
+  };
+
+  const handleBottomSheetClose = () => {
+    setBottomSheetOpen(false);
+    setSelectedMarket(null);
+    setSelectedSide(null);
+  };
+
+  const handleBottomSheetConfirm = () => {
+    if (!localAmount || Number(localAmount) <= 0 || !selectedMarket) {
       return;
     }
-    placeInlineBet(side, marketId);
+    placeInlineBet(selectedSide === "YES", selectedMarket.id);
+    handleBottomSheetClose();
   };
 
   const renderMarketCard = (market) => {
@@ -116,68 +134,100 @@ export default function StreamMarketsPanel({
     return (
       <div
         key={market.id}
-        className={`rounded-lg border ${
-          isExpanded ? "border-gray-300" : "border-gray-200"
-        } bg-white p-3 shadow-sm transition hover:border-gray-300`}
+        className={`rounded-[4px] border  ${
+          isExpanded
+            ? "border-gray-300 dark:border-gray-600"
+            : "border-gray-200 dark:border-gray-700"
+        } bg-white dark:bg-gray-800 p-3 transition hover:border-gray-300 dark:hover:border-gray-600`}
       >
-        <button
-          type="button"
-          onClick={() => toggleMarket(market.id)}
-          className="flex w-full items-start justify-between gap-3 text-left"
-        >
-          <div>
-            <h4 className="text-sm font-medium text-[#000000CC] leading-snug line-clamp-3">
-              {market.question}
-            </h4>
-          </div>
-          <div className="shrink-0 text-right text-xs font-semibold text-gray-500">
-            <div>Ends: {formatEndsAt(market.ends_at)}</div>
-          </div>
-        </button>
-
         {isResolved ? (
-          <div className="mt-2 flex items-center justify-between rounded-md bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-600">
-            <span>Result</span>
-            <span
-              className={`inline-flex min-w-[42px] items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold ${
-                market.winning_side?.toUpperCase() === "YES"
-                  ? "bg-[#E6F0FF] text-[#1D4ED8]"
-                  : "bg-[#FFE8EC] text-[#DB2777]"
-              }`}
-            >
-              {(market.winning_side || "—").toUpperCase()}
-            </span>
+          <div className="flex w-full items-start justify-between gap-3">
+            <div className="flex-1">
+              <h4 className="text-xs md:text-sm font-medium text-gray-900 dark:text-gray-100 leading-snug line-clamp-3 max-w-md">
+                {market.question}
+              </h4>
+            </div>
+            <div className="shrink-0">
+              <span className="inline-flex items-center rounded-[4px] bg-[#F3F4F6] dark:bg-blue-900/30 px-2 py-1 text-[10px] font-semibold  uppercase tracking-wide">
+                Resolved
+              </span>
+            </div>
           </div>
         ) : (
-          <div className="mt-2 flex items-center justify-between gap-3 text-xs text-gray-500">
-            <div>
+          <button
+            type="button"
+            onClick={() => toggleMarket(market.id)}
+            className="flex w-full items-start justify-between gap-3 text-left"
+          >
+            <div className="flex-1">
+              <h4 className="text-sm md:text-sm text-xs font-medium text-gray-900 dark:text-gray-100 leading-snug line-clamp-3 max-w-md">
+                {market.question}
+              </h4>
+            </div>
+          </button>
+        )}
+
+        {isResolved ? (
+          <div className="mt-2 flex items-center justify-between text-xs md:text-xs">
+            <div className="text-gray-600 dark:text-gray-400">
               Volume:
-              <span className="ml-1 font-semibold text-gray-800">
+              <span className="ml-1 font-semibold text-gray-800 dark:text-gray-200">
                 {formatCurrency(market.total_volume ?? market.volume ?? totalVolume)}
               </span>
             </div>
-            <div className="flex items-center gap-2 text-xs">
+            <div>
+              <span
+                className={`inline-flex min-w-[52px] items-center justify-center rounded-[4px] px-3 py-1.5 text-xs font-semibold ${
+                  market.winning_side?.toUpperCase() === "YES"
+                    ? "bg-[#ECECFD] text-[#096]"
+                    : "bg-[#FFC9C9] text-[#F54900]"
+                }`}
+              >
+                {(market.winning_side ? "YES" : "NO")}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-2 flex items-center justify-between gap-3 text-xs md:text-xs text-gray-500 dark:text-gray-400">
+            <div className="truncate">
+              Volume:
+              <span className="ml-1 font-semibold text-gray-800 dark:text-gray-200">
+                {formatCurrency(
+                  market.total_volume ?? market.volume ?? totalVolume
+                )}
+              </span>
+            </div>
+            <div className="flex items-center text-xs md:text-xs h-full">
               <button
                 type="button"
-                onClick={() => handleBet(true, market.id)}
-                disabled={placing || hasBet || isPlaceholder}
-                className={`inline-flex cursor-pointer items-center justify-center rounded-md px-3 py-1 text-xs font-semibold transition hover:shadow-sm ${
-                  placing || hasBet || isPlaceholder
-                    ? "bg-[#ECECFD] text-green-600 opacity-60"
-                    : "bg-[#ECECFD] text-green-600 hover:bg-emerald-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBet(true, market.id);
+                }}
+                disabled={placing || hasBet}
+                className={`btn-primary inline-flex cursor-pointer items-center justify-center rounded-[4px] rounded-r-none px-3 py-1 text-xs md:text-xs font-semibold text-emerald-600 transition ${
+                  placing || hasBet ? "opacity-50 cursor-not-allowed" : ""
                 }`}
+                style={{
+                  background: "linear-gradient(90deg, rgba(38, 92, 255, 0.08) 0%, rgba(38, 92, 255, 0.08) 33.33%, rgba(170, 0, 255, 0.08) 66.67%, rgba(170, 0, 255, 0.08) 100%)"
+                }}
               >
                 Yes
               </button>
+              <div className="bg-[linear-gradient(90deg,rgba(59,130,246,0.4)_0%,rgba(255,100,103,0.4)_100%)] w-[1px] h-6"></div>
               <button
                 type="button"
-                onClick={() => handleBet(false, market.id)}
-                disabled={placing || hasBet || isPlaceholder}
-                className={`inline-flex cursor-pointer items-center justify-center rounded-md px-3 py-1 text-xs font-semibold transition hover:shadow-sm ${
-                  placing || hasBet || isPlaceholder
-                    ? "bg-[#FFC9C9] text-red-600 opacity-60"
-                    : "bg-[#FFC9C9] text-red-600 hover:bg-rose-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBet(false, market.id);
+                }}
+                disabled={placing || hasBet}
+                className={`btn-secondary inline-flex cursor-pointer items-center justify-center rounded-[4px] rounded-l-none px-3 py-1 text-xs md:text-xs font-semibold text-rose-600 transition ${
+                  placing || hasBet ? "opacity-50 cursor-not-allowed" : ""
                 }`}
+                style={{
+                  background: "linear-gradient(90deg, rgba(38, 92, 255, 0.08) 0%, rgba(38, 92, 255, 0.08) 33.33%, rgba(170, 0, 255, 0.08) 66.67%, rgba(170, 0, 255, 0.08) 100%)"
+                }}
               >
                 No
               </button>
@@ -186,12 +236,14 @@ export default function StreamMarketsPanel({
         )}
 
         {!isResolved && isExpanded && (
-          <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-3">
-            <label className="text-[11px] font-semibold text-gray-600">
+          <div className="mt-2 rounded-[4px] border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 p-3">
+            <label className="text-xs md:text-[11px] font-semibold text-gray-600 dark:text-gray-300">
               Amount (USD)
             </label>
-            <div className="mt-1 flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-sm focus-within:border-gray-900">
-              <span className="mr-2 text-gray-500">$</span>
+            <div className="mt-1 flex items-center rounded-[4px] border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2 focus-within:border-gray-900 dark:focus-within:border-gray-400">
+              <span className="mr-2 text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                $
+              </span>
               <input
                 type="number"
                 min={0}
@@ -199,7 +251,7 @@ export default function StreamMarketsPanel({
                 inputMode="decimal"
                 value={localAmount}
                 onChange={(event) => handleAmountChange(event.target.value)}
-                className="w-full border-0 bg-transparent text-sm outline-none"
+                className="w-full border-0 bg-transparent text-xs md:text-sm text-gray-900 dark:text-gray-100 outline-none"
                 placeholder="10.00"
                 disabled={isPlaceholder}
               />
@@ -210,7 +262,7 @@ export default function StreamMarketsPanel({
                   key={value}
                   type="button"
                   onClick={() => handleQuickSelect(value)}
-                  className="inline-flex items-center rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-700 transition hover:border-gray-300"
+                  className="inline-flex items-center rounded-full border border-gray-200 dark:border-gray-600 px-3 py-1 text-xs md:text-xs font-semibold text-gray-700 dark:text-gray-300 transition hover:border-gray-300 dark:hover:border-gray-500"
                   disabled={isPlaceholder}
                 >
                   ${value}
@@ -218,11 +270,11 @@ export default function StreamMarketsPanel({
               ))}
             </div>
             {hasBet && !isPlaceholder && (
-              <p className="mt-2 rounded-md bg-amber-50 px-2 py-1 text-[11px] font-medium text-amber-700">
+              <p className="mt-2 rounded-[4px] bg-amber-50 dark:bg-amber-900 px-2 py-1 text-xs md:text-[11px] font-medium text-amber-700 dark:text-amber-300">
                 You already have a position in this market.
               </p>
             )}
-            <p className="mt-2 text-[11px] text-gray-500">
+            <p className="mt-2 text-xs md:text-[11px] text-gray-500 dark:text-gray-400">
               Min $1 · Max $1,000 · 2% fee applied on placement.
             </p>
           </div>
@@ -232,38 +284,45 @@ export default function StreamMarketsPanel({
   };
 
   return (
-    <aside className="space-y-4 bg-white">
+    <aside className="space-y-4 bg-white dark:bg-gray-900">
       <div>
-        <div className="mt-4 flex gap-2 text-sm border-b pb-1">
-          <button
-            type="button"
-            onClick={() => setActiveTab("active")}
-            className={` px-3 py-1 transition ${
-              activeTab === "active"
-                ? "bg-[#F9FAFB] text-black"
-                : "text-[#10182880] hover:text-gray-900"
-            }`}
+        <div className="md:mt-4 flex items-center border-b border-gray-200 dark:border-gray-700 pb-1">
+          <div
+            className="inline-flex rounded-[4px] p-[1px]"
+            
           >
-            Active
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("resolved")}
-            className={` px-3 py-1 transition ${
-              activeTab === "resolved"
-                 ? "bg-[#F9FAFB] text-black"
-             : "text-[#10182880] hover:text-gray-900"
-            }`}
-          >
-            Resolved
-          </button>
+            <div className="flex bg-white dark:bg-gray-900 rounded-[3px]">
+              <button
+                type="button"
+                onClick={() => setActiveTab("active")}
+                className={`px-3 py-1 text-xs md:text-sm font-semibold transition rounded-l-[3px] ${
+                  activeTab === "active"
+                    ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                }`}
+              >
+                Active
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("resolved")}
+                className={`px-3 py-1 text-xs md:text-sm font-semibold transition rounded-r-[3px] ${
+                  activeTab === "resolved"
+                    ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                    : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                }`}
+              >
+                Resolved
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="mt-3 space-y-2.5">
           {markets.length ? (
             markets.map((market) => renderMarketCard(market))
           ) : (
-            <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-center text-xs font-semibold text-gray-500">
+            <div className="rounded-[4px] border border-dashed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 p-6 text-center text-xs md:text-xs font-semibold text-gray-500 dark:text-gray-400">
               {activeTab === "active"
                 ? "No active markets at the moment."
                 : "No resolved markets yet."}
@@ -271,6 +330,18 @@ export default function StreamMarketsPanel({
           )}
         </div>
       </div>
+
+      {/* Bottom Sheet for Mobile Betting */}
+      <BetBottomSheet
+        isOpen={bottomSheetOpen}
+        onClose={handleBottomSheetClose}
+        market={selectedMarket}
+        side={selectedSide}
+        betAmount={localAmount}
+        setBetAmount={handleAmountChange}
+        onConfirm={handleBottomSheetConfirm}
+        placing={placing}
+      />
     </aside>
   );
 }
