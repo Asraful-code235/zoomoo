@@ -7,32 +7,57 @@ export default function MarketChart({ market }) {
   // Generate realistic market data based on current price
   useEffect(() => {
     const yesPrice = Number(market?.yes_price ?? 0.5);
-    const noPrice = 1 - yesPrice;
 
-    // Generate 1000 data points with heartbeat-like randomness
-    const points = 1000;
+    // Generate 1500 data points for smooth, clean lines
+    const points = 1500;
     const yesData = [];
     const noData = [];
 
-    let currentYes = yesPrice;
-    let currentNo = noPrice;
+    // Start both lines at 50/50
+    let currentYes = 0.5;
+    let currentNo = 0.5;
+    let momentum = 0;
+    let trendDirection = Math.random() > 0.5 ? 1 : -1;
+    let trendStrength = 0;
 
     for (let i = 0; i < points; i++) {
-      // Create heartbeat-like pattern with varying volatility
-      const volatility = 0.02 + Math.random() * 0.03; // Random volatility between 2-5%
-      const trend = Math.sin(i / 50) * 0.01; // Subtle wave pattern
+      // Progressive expansion - volatility increases over time
+      const progressRatio = i / points;
+      const expansionFactor = Math.pow(progressRatio, 0.8); // Gradual expansion
 
-      // Random walk with mean reversion
-      const yesChange = (Math.random() - 0.5) * volatility + trend;
-      const noChange = -yesChange; // Inverse relationship
+      // Very low base volatility for ultra-smooth lines
+      const baseVolatility = 0.00008 + (expansionFactor * 0.0003);
 
-      currentYes = Math.max(0.1, Math.min(0.9, currentYes + yesChange));
-      currentNo = Math.max(0.1, Math.min(0.9, currentNo + noChange));
+      // Create trending periods with increasing strength
+      if (i % 300 === 0 && i > 0) {
+        trendDirection = Math.random() > 0.5 ? trendDirection : -trendDirection;
+        trendStrength = Math.random() * 0.0002 * (1 + expansionFactor * 0.5);
+      }
 
-      // Normalize to ensure they sum close to 1
-      const sum = currentYes + currentNo;
-      currentYes = currentYes / sum;
-      currentNo = currentNo / sum;
+      // Trend bias increases over time (creates divergence)
+      const trendBias = trendDirection * trendStrength * (1 + expansionFactor * 1.5);
+
+      // Rare larger movements (very occasional events)
+      const eventChance = 0.01 + (expansionFactor * 0.015);
+      const hasEvent = Math.random() < eventChance;
+      const eventImpact = hasEvent ? (Math.random() - 0.5) * 0.012 * (1 + expansionFactor * 0.8) : 0;
+
+      // High momentum decay for very smooth trends
+      const momentumDecay = 0.99;
+      const randomImpulse = (Math.random() - 0.5) * baseVolatility;
+      momentum = momentum * momentumDecay + randomImpulse + eventImpact + trendBias;
+
+      // Apply momentum to price
+      currentYes += momentum;
+
+      // Weak mean reversion that decreases over time (allows divergence)
+      const meanReversionStrength = 0.00005 * (1 - expansionFactor * 0.6);
+      const pullToMean = (yesPrice - currentYes) * meanReversionStrength;
+      currentYes += pullToMean;
+
+      // Keep within realistic bounds
+      currentYes = Math.max(0.15, Math.min(0.85, currentYes));
+      currentNo = 1 - currentYes;
 
       yesData.push(currentYes);
       noData.push(currentNo);

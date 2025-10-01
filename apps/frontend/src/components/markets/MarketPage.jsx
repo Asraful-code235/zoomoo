@@ -102,7 +102,7 @@ export default function MarketPage() {
       <div className="mb-6">
         <div className="relative bg-white dark:bg-gray-800 rounded shadow-md overflow-hidden">
           {/* Question at top */}
-          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+          <div className="px-4 py-3 ">
             <h2 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white line-clamp-2">
               {currentCarouselMarket?.question ||
                 currentCarouselStream?.market_question ||
@@ -112,7 +112,7 @@ export default function MarketPage() {
           </div>
 
           {/* Video + Chart Grid - Mobile: stacked, Desktop: side-by-side */}
-          <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-0">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-0 px-4">
             {/* Video Section */}
             <div className="relative bg-black w-full h-[240px] lg:h-full">
               {currentCarouselStream?.playback_id ? (

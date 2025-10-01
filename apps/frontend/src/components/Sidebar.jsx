@@ -140,16 +140,7 @@ export default function Sidebar({ logo }) {
             {/* Profile Dropdown */}
             {showProfileDropdown && (
               <div className="absolute bottom-full left-0 mb-2 w-full dark-card-bg border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
-                <Link
-                  to="/profile"
-                  onClick={() => setShowProfileDropdown(false)}
-                  className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-900 dark:bg-gray-700 text-xs text-white">
-                    🐹
-                  </div>
-                  View Profile
-                </Link>
+              
                 <button
                   type="button"
                   onClick={() => {
