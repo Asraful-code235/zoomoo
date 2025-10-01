@@ -85,9 +85,10 @@ export default function HeroSection() {
                 onClick={() => goToSlide(index)}
                 className={`transition-all duration-300 rounded-full ${
                   index === currentSlide
-                    ? "w-6 h-2.5 bg-black"
-                    : "w-2.5 h-2.5 bg-gray-400 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-400"
+                    ? "w-6 h-2.5 bg-white"
+                    : "w-2.5 h-2.5 hover:bg-white"
                 }`}
+                style={index !== currentSlide ? { backgroundColor: '#D1D5DBCC' } : {}}
                 aria-label={`Go to slide ${index + 1}`}
                 aria-current={index === currentSlide ? "true" : "false"}
               />
@@ -104,9 +105,10 @@ export default function HeroSection() {
             onClick={() => goToSlide(index)}
             className={`transition-all duration-300 rounded-full ${
               index === currentSlide
-                ? "w-8 h-2 bg-black"
-                : "w-2 h-2 bg-gray-400 dark:bg-gray-600 hover:bg-gray-600 dark:hover:bg-gray-400"
+                ? "w-8 h-2 bg-white dark:bg-white"
+                : "w-2 h-2 hover:bg-white dark:hover:bg-white"
             }`}
+            style={index !== currentSlide ? { backgroundColor: '#D1D5DBCC' } : {}}
             aria-label={`Go to slide ${index + 1}`}
             aria-current={index === currentSlide ? "true" : "false"}
           />

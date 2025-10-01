@@ -44,5 +44,10 @@ body {
 
 
 .btn-secondary {
- @apply bg-[linear-gradient(90deg,rgba(38,92,255,0.08)_0%,rgba(38,92,255,0.08)_33.33%,rgba(170,0,255,0.08)_66.67%,rgba(170,0,255,0.08)_100%)] 
+ @apply bg-[linear-gradient(90deg,rgba(38,92,255,0.08)_0%,rgba(38,92,255,0.08)_33.33%,rgba(170,0,255,0.08)_66.67%,rgba(170,0,255,0.08)_100%)]
+}
+
+/* Dark mode card/sidebar background */
+.dark-card-bg {
+  @apply bg-white dark:bg-[#141518];
 }

@@ -56,7 +56,7 @@ export default function Dashboard() {
         {/* Mobile-First Layout */}
         <div className="space-y-6">
           {/* User Profile Section */}
-          <section className="rounded-[4px] md:border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6">
+          <section className="rounded-[4px] md:border border-gray-200 dark:border-gray-700 dark-card-bg p-4 md:p-6">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 {/* Profile Image */}
@@ -129,7 +129,7 @@ export default function Dashboard() {
               {METRIC_CARDS.map((card) => (
                 <div
                   key={card.label}
-                  className="flex flex-col rounded-[4px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-3 md:px-4 md:py-4"
+                  className="flex flex-col rounded-[4px] border border-gray-200 dark:border-gray-700 dark-card-bg px-3 py-3 md:px-4 md:py-4"
                 >
                   <p className="text-[10px] md:text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
                     {card.label}

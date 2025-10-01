@@ -26,7 +26,7 @@ export default function Sidebar({ logo }) {
   }, [showProfileDropdown]);
 
   const navItems = [
-    { to: "/market", label: "Live", icon: "/live.svg" },
+    { to: "/market", label: "Market", icon: "/live.svg" },
     { to: "/streams", label: "Feed", icon: "/feed.svg" },
     { to: "/leaderboard", label: "Leaderboard", icon: "/leaderboard.svg" },
     { to: "/dashboard", label: "Dashboard", icon: "/dashboard.svg" },
@@ -63,11 +63,15 @@ export default function Sidebar({ logo }) {
   };
 
   return (
-    <aside className="hidden lg:flex lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 w-28 shrink-0 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 flex-col shadow-sm transition-colors duration-200">
+    <aside className="hidden lg:flex lg:fixed lg:inset-y-0 lg:left-0 lg:z-40 w-28 shrink-0 dark-card-bg border-r border-gray-200 dark:border-gray-700 flex-col shadow-sm transition-colors duration-200">
       {/* Logo */}
       <div className="px-2 py-4 text-center">
         <Link to="/" className="block">
-          <img src={logo} alt="Furcast" className="h-14 w-auto mx-auto" />
+          <img
+            src={theme === 'dark' ? '/dark_logo.png' : logo}
+            alt="Furcast"
+            className="h-14 w-auto mx-auto"
+          />
         </Link>
       </div>
 
@@ -135,7 +139,7 @@ export default function Sidebar({ logo }) {
 
             {/* Profile Dropdown */}
             {showProfileDropdown && (
-              <div className="absolute bottom-full left-0 mb-2 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
+              <div className="absolute bottom-full left-0 mb-2 w-full dark-card-bg border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50">
                 <Link
                   to="/profile"
                   onClick={() => setShowProfileDropdown(false)}

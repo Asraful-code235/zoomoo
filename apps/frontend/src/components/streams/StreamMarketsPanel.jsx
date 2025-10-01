@@ -138,7 +138,7 @@ export default function StreamMarketsPanel({
           isExpanded
             ? "border-gray-300 dark:border-gray-600"
             : "border-gray-200 dark:border-gray-700"
-        } bg-white dark:bg-gray-800 p-3 transition hover:border-gray-300 dark:hover:border-gray-600`}
+        } dark-card-bg p-3 transition hover:border-gray-300 dark:hover:border-gray-600`}
       >
         {isResolved ? (
           <div className="flex w-full items-start justify-between gap-3">

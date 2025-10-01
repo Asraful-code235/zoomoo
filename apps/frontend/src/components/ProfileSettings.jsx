@@ -245,7 +245,7 @@ export default function ProfileSettings({ user }) {
 
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Profile Info */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="dark-card-bg rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-base font-semibold text-gray-900 dark:text-white m-0">Profile</h3>
         </div>
@@ -317,7 +317,7 @@ export default function ProfileSettings({ user }) {
       </div>
 
       {/* Appearance */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="dark-card-bg rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-base font-semibold text-gray-900 dark:text-white m-0">Appearance</h3>
         </div>
@@ -351,7 +351,7 @@ export default function ProfileSettings({ user }) {
       </div>
 
       {/* Notifications */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="dark-card-bg rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-base font-semibold text-gray-900 dark:text-white m-0">Notifications</h3>
         </div>
@@ -397,7 +397,7 @@ export default function ProfileSettings({ user }) {
       </div>
 
       {/* Data & Wallet Security */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
+      <div className="dark-card-bg rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="px-5 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-base font-semibold text-gray-900 dark:text-white m-0">Data & Security</h3>
         </div>

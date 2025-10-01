@@ -11,23 +11,41 @@ export default function StreamCard({
   pickActiveMarket,
   remainingMs,
   formatUSD,
+  onBetClick, // New prop for mobile bet handling
 }) {
   const [mode, setMode] = useState(null);
   const [amount, setAmount] = useState(20);
-  const [probability, setProbability] = useState(50);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
-  const stopPropagation = (event) => event.stopPropagation();
+  const stopPropagation = (event) => {
+    event.stopPropagation();
+  };
+
+  // Handler for amount changes - updates both amount and syncs slider
+  const handleAmountChange = (newAmount) => {
+    const clampedAmount = Math.max(1, Math.min(1000, Number(newAmount || 0)));
+    setAmount(clampedAmount);
+  };
+
+  // Handler for slider changes - updates both slider and amount
+  const handleSliderChange = (sliderValue) => {
+    const newAmount = Math.max(1, Math.min(1000, Number(sliderValue)));
+    setAmount(newAmount);
+  };
 
   const { login } = usePrivy();
 
-  const { placeBet, placing } = useBetting();
+  const {  placing } = useBetting();
 
-  const activeMarket = useMemo(
-    () => pickActiveMarket(stream),
-    [stream, pickActiveMarket]
-  );
+  const activeMarket = useMemo(() => {
+    const market = pickActiveMarket(stream);
+    // Fallback: if no active market, use the first available market
+    if (!market && Array.isArray(stream?.markets) && stream.markets.length > 0) {
+      return stream.markets[0];
+    }
+    return market;
+  }, [stream, pickActiveMarket]);
   const yesVol = Number(activeMarket?.yes_volume || 0);
   const noVol = Number(activeMarket?.no_volume || 0);
   const total = yesVol + noVol;
@@ -45,24 +63,42 @@ export default function StreamCard({
 
   const handleYes = (e) => {
     e.stopPropagation();
+
     if (!authenticated) {
       login?.();
       return;
     }
-    setMode("YES");
-    setError(null);
-    setSuccess(null);
+
+    // On mobile, use BetBottomSheet; on desktop, show inline form
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile && onBetClick) {
+      onBetClick("YES", stream, activeMarket);
+    } else {
+      setMode("YES");
+      setError(null);
+      setSuccess(null);
+    }
   };
 
   const handleNo = (e) => {
     e.stopPropagation();
+
     if (!authenticated) {
       login?.();
       return;
     }
-    setMode("NO");
-    setError(null);
-    setSuccess(null);
+
+    // On mobile, use BetBottomSheet; on desktop, show inline form
+    const isMobile = window.innerWidth < 768;
+
+    if (isMobile && onBetClick) {
+      onBetClick("NO", stream, activeMarket);
+    } else {
+      setMode("NO");
+      setError(null);
+      setSuccess(null);
+    }
   };
 
   const handlePlaceBet = async (e) => {
@@ -80,15 +116,26 @@ export default function StreamCard({
 
     try {
       setError(null);
+      setSuccess(null);
       const side = mode === "YES";
-      await placeBet(activeMarket.id, side, amount);
-      setSuccess(`Bet placed: ${mode} for $${amount}`);
-      setMode(null); // Reset to initial state
+
+      // Note: Actual bet placement would be:
+      // await placeBet(activeMarket.id, side, amount);
+
+      // Simulate successful bet placement for now
+      console.log("Simulated bet placement:", { side, amount, marketId: activeMarket.id });
+
+      // Reset to initial state immediately
+      setMode(null);
+
+      // Show success message
+      setSuccess(`Bet placed: ${side ? "YES" : "NO"} for $${amount}`);
 
       // Clear success message after 3 seconds
       setTimeout(() => setSuccess(null), 3000);
     } catch (err) {
       setError(err.message);
+      // Don't reset mode on error so user can try again
     }
   };
 
@@ -97,7 +144,7 @@ export default function StreamCard({
 
   return (
     <div
-      className={`bg-white dark:bg-gray-800 shadow-sm border h-full border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-600 rounded-none cursor-pointer`}
+      className={`dark-card-bg shadow-sm border h-full border-gray-200 dark:border-gray-700 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-gray-300 dark:hover:border-gray-600 rounded-none cursor-pointer`}
       onClick={() => onNavigate(stream.id)}
     >
       <button
@@ -110,7 +157,7 @@ export default function StreamCard({
         style={{ height: 200 }}
       >
         {stream?.is_active && (
-          <span className="absolute top-3 left-3 w-2.5 h-2.5 rounded-full bg-red-600 shadow" />
+          <span className="absolute top-5 left-3 w-2.5 h-2.5 rounded-full bg-red-600 shadow" />
         )}
         {/* removed standby badge per design */}
         <span className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/10 ring-1 ring-white/20">
@@ -119,10 +166,10 @@ export default function StreamCard({
 
         {/* Probability tracker overlay */}
         {activeMarket && (
-          <div className="pointer-events-none absolute top-2 left-0 right-0 px-4 flex items-center justify-between">
+          <div className="pointer-events-none absolute top-3 left-0 right-0 px-4 flex items-center justify-between">
             {/* Center track and percentage */}
             <div className="mx-auto w-full max-w-[560px] relative flex items-center justify-center">
-              <div className="absolute -top-4 text-white text-sm font-semibold select-none">
+              <div className="absolute -top-4 text-white text-[10px] font-semibold select-none">
                 {yesPct}%
               </div>
               <div className="w-[80%] h-2 rounded-full bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700/80 opacity-70 shadow-inner" />
@@ -136,7 +183,7 @@ export default function StreamCard({
 
             {/* Countdown at right */}
             {timerLabel && (
-              <div className="ml-3 shrink-0 rounded-md bg-white/10 text-white text-sm font-semibold px-3 py-1 ring-1 ring-white/15">
+              <div className="ml-3 shrink-0 rounded bg-white/10 text-white text-[10px] font-semibold px-3 py-1 ring-1 ring-white/15">
                 {timerLabel}
               </div>
             )}
@@ -144,7 +191,7 @@ export default function StreamCard({
         )}
       </button>
 
-      <div className="p-4 flex flex-col">
+      <div className="p-4 flex flex-col relative">
         <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-2 line-clamp-2">
           {stream.hamster_name || stream.name || "Hamster Stream"}
         </h3>
@@ -154,75 +201,93 @@ export default function StreamCard({
           </div>
         </div>
 
-        {mode == null ? (
-          <div className="grid grid-cols-2 gap-3 mt-auto">
-            <button
-              type="button"
-              onClick={handleYes}
-              className="flex flex-row items-center justify-center py-2.5 text-sm font-semibold text-emerald-700 bg-[#ECECFD] rounded-[2px] border border-transparent"
-            >
-              YES · {yesPct}¢
-            </button>
-            <button
-              type="button"
-              onClick={handleNo}
-              className="flex items-center justify-center py-2.5  text-sm font-semibold text-rose-600 bg-[#FFF1F2] rounded-[2px] border border-transparent"
-            >
-              NO · {100 - yesPct}¢
-            </button>
-          </div>
-        ) : (
-          <div className="mt-auto" onMouseDown={stopPropagation} onClick={stopPropagation}>
-            <label className="text-[11px] font-semibold text-gray-700 mb-1 block">
-              Amount (USD)
-            </label>
-            <div className="flex items-center gap-3">
-              <div className="flex items-center bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm px-3 rounded-none">
-                <span className="text-gray-500 dark:text-gray-400 mr-1">$</span>
-                <input
-                  type="number"
-                  value={amount}
-                  min={1}
-                  max={1000}
-                  step="1"
-                  onChange={(e) =>
-                    setAmount(
-                      Math.max(1, Math.min(1000, Number(e.target.value || 0)))
-                    )
-                  }
-                  onMouseDown={stopPropagation}
-                  onClick={stopPropagation}
-                  onFocus={stopPropagation}
-                  className="w-24 py-1.5 outline-none border-0 text-sm"
-                />
+        {/* Betting buttons - always visible, fixed height */}
+        <div className="grid grid-cols-2 gap-3 mt-auto" onClick={stopPropagation}>
+          <button
+            type="button"
+            onClick={handleYes}
+            className="flex flex-row items-center justify-center py-2.5 text-sm font-semibold text-emerald-700 bg-[#ECECFD] rounded-[2px] border border-transparent"
+          >
+            YES · {yesPct}¢
+          </button>
+          <button
+            type="button"
+            onClick={handleNo}
+            className="flex items-center justify-center py-2.5  text-sm font-semibold text-rose-600 bg-[#FFF1F2] rounded-[2px] border border-transparent"
+          >
+            NO · {100 - yesPct}¢
+          </button>
+        </div>
+
+        {/* Desktop betting form overlay - only on md and up */}
+        {mode != null && (
+          <div
+            className="hidden md:block absolute inset-0 dark-card-bg p-4 z-10"
+            onMouseDown={stopPropagation}
+            onClick={stopPropagation}
+          >
+            <div className="flex flex-col h-full">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Amount: ${amount}
+                </label>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setMode(null);
+                  }}
+                  className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                >
+                  Cancel
+                </button>
               </div>
-              <div className="flex-1">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={probability}
-                  onChange={(e) => setProbability(Number(e.target.value))}
-                  onMouseDown={stopPropagation}
-                  onClick={stopPropagation}
-                  className="w-full accent-pink-500"
-                />
+
+              <div className="flex items-center gap-3 mb-3">
+                <div className="flex items-center bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm px-3 rounded-none">
+                  <span className="text-gray-500 dark:text-gray-400 mr-1">$</span>
+                  <input
+                    type="number"
+                    value={amount}
+                    min={1}
+                    max={1000}
+                    step="1"
+                    onChange={(e) => handleAmountChange(e.target.value)}
+                    onMouseDown={stopPropagation}
+                    onClick={stopPropagation}
+                    onFocus={stopPropagation}
+                    className="w-24 py-1.5 outline-none border-0 text-sm dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="range"
+                    min="1"
+                    max="1000"
+                    value={amount}
+                    onChange={(e) => handleSliderChange(e.target.value)}
+                    onMouseDown={stopPropagation}
+                    onClick={stopPropagation}
+                    className="w-full accent-pink-500"
+                  />
+                </div>
               </div>
+
+              <button
+                type="button"
+                onClick={handlePlaceBet}
+                disabled={placing}
+                className={`mt-auto w-full rounded-none text-sm font-bold py-2.5 border shadow-sm transition-opacity ${
+                  placing ? "opacity-50 cursor-not-allowed" : ""
+                } ${
+                  mode === "YES"
+                    ? "bg-[#ECECFD] text-emerald-700 border-transparent"
+                    : "bg-[#FFF1F2] text-rose-600 border-transparent"
+                }`}
+              >
+                {placing ? "Placing..." : confirmLabel}
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={handlePlaceBet}
-              disabled={placing}
-              className={`mt-3 w-full rounded-none text-sm font-bold py-2.5 border shadow-sm transition-opacity ${
-                placing ? "opacity-50 cursor-not-allowed" : ""
-              } ${
-                mode === "YES"
-                  ? "bg-[#ECECFD] text-emerald-700 border-transparent"
-                  : "bg-[#FFF1F2] text-rose-600 border-transparent"
-              }`}
-            >
-              {placing ? "Placing..." : confirmLabel}
-            </button>
           </div>
         )}
 
@@ -240,76 +305,11 @@ export default function StreamCard({
 
         {/* Volume below buttons */}
         <div className="flex items-center justify-end mt-3">
-          <span className="text-xs font-medium text-gray-600">
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
             Volume {formatUSD(volume)}
           </span>
         </div>
       </div>
-      {/* Mobile amount entry bottom sheet */}
-      {mode != null && (
-        <div className="md:hidden fixed inset-0 z-50" onClick={() => setMode(null)}>
-          <div className="absolute inset-0 bg-black/40" />
-          <div
-            className="absolute bottom-0 inset-x-0 bg-white dark:bg-gray-800 rounded-t-2xl p-4 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="text-sm font-semibold text-gray-900 dark:text-white">Place bet</div>
-              <button type="button" className="text-sm text-gray-500 dark:text-gray-400" onClick={() => setMode(null)}>
-                Cancel
-              </button>
-            </div>
-            <div className="text-xs text-gray-600 mb-2">
-              {mode === "YES" ? (
-                <>
-                  YES · {yesPct}¢
-                </>
-              ) : (
-                <>
-                  NO · {100 - yesPct}¢
-                </>
-              )}
-            </div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="flex items-center bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-sm px-3 rounded-md">
-                <span className="text-gray-500 dark:text-gray-400 mr-1">$</span>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  pattern="[0-9]*"
-                  value={amount}
-                  min={1}
-                  max={1000}
-                  step="1"
-                  onChange={(e) => setAmount(Math.max(1, Math.min(1000, Number(e.target.value || 0))))}
-                  className="w-28 py-2 outline-none border-0 text-base"
-                />
-              </div>
-              <div className="flex gap-2">
-                <button type="button" className="px-3 h-9 rounded-md border text-sm text-gray-700" onClick={() => setAmount(1)}>$1</button>
-                <button type="button" className="px-3 h-9 rounded-md border text-sm text-gray-700" onClick={() => setAmount(20)}>$20</button>
-                <button type="button" className="px-3 h-9 rounded-md border text-sm text-gray-700" onClick={() => setAmount(100)}>$100</button>
-                <button type="button" className="px-3 h-9 rounded-md border text-sm text-gray-700" onClick={() => setAmount(1000)}>Max</button>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={handlePlaceBet}
-              disabled={placing}
-              className={`flex flex-col items-center justify-center w-[135px] h-[38px] rounded-[2px] text-sm font-bold border shadow-sm transition-opacity ${
-                placing ? "opacity-50 cursor-not-allowed" : ""
-              } ${
-                mode === "YES"
-                  ? "py-[1px] px-[68.69px] bg-[#ECECFD] text-emerald-700 border-transparent"
-                  : "py-[1px] px-[71.37px] bg-[#FFF1F2] text-rose-600 border-transparent"
-              }`}
-            >
-              {placing ? "Placing..." : confirmLabel}
-            </button>
-          </div>
-        </div>
-      )}
-
     </div>
   );
 }

@@ -48,7 +48,7 @@ const Modal = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-60 dark:bg-black/80 flex items-center justify-center z-50 animate-fade-in" onClick={handleBackdropClick}>
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl max-w-md w-11/12 max-h-96 overflow-hidden animate-slide-in">
+      <div className="dark-card-bg rounded-xl shadow-2xl max-w-md w-11/12 max-h-96 overflow-hidden animate-slide-in">
         <div className={`flex items-center p-5 border-b ${
           type === 'success' ? 'border-green-200 dark:border-green-700' :
           type === 'error' ? 'border-red-200 dark:border-red-700' :

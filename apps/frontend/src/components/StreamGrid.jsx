@@ -3,10 +3,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import { useNavigate } from "react-router-dom";
 import StreamCard from "./streams/StreamCard";
 import { useStreams } from "../hooks/useStreams";
-import { useSwipeGesture } from "../hooks/useSwipeGesture";
 import { useMarketData } from "../hooks/useMarketData";
-import MobileMarketCard from "./markets/MobileMarketCard";
-import MobileBetButtons from "./markets/MobileBetButtons";
 import BetBottomSheet from "./markets/BetBottomSheet";
 import MarketHeader from "./markets/MarketHeader";
 import { LoadingState, EmptyState } from "./markets/LoadingState";
@@ -37,16 +34,7 @@ export default function StreamGrid() {
     [streams, sortKey, sortStreams]
   );
 
-  const {
-    activeSlide,
-    containerW,
-    dragX,
-    isDragging,
-    sliderRef,
-    onTouchStart,
-    onTouchMove,
-    onTouchEnd,
-  } = useSwipeGesture(sortedStreams.length);
+ 
 
   // Handlers
   const handleCardClick = (streamId) => {
@@ -62,6 +50,7 @@ export default function StreamGrid() {
       login?.();
       return;
     }
+
     setSelectedSide(side);
     setSelectedStream(stream);
     setSelectedMarket(market);
@@ -70,12 +59,6 @@ export default function StreamGrid() {
 
   if (initialLoading) return <LoadingState />;
   if (streams.length === 0) return <EmptyState />;
-
-  const activeStream = sortedStreams[activeSlide] || sortedStreams[0];
-  const activeMarket = activeStream
-    ? pickActiveMarket(activeStream) ||
-      (Array.isArray(activeStream?.markets) ? activeStream.markets[0] : null)
-    : null;
 
   return (
     <div className="max-w-screen-2xl mx-auto px-6 md:px-8">
@@ -97,6 +80,7 @@ export default function StreamGrid() {
                 index={index}
                 authenticated={authenticated}
                 onNavigate={handleCardClick}
+                onBetClick={handleBetClick}
                 pickActiveMarket={pickActiveMarket}
                 remainingMs={remainingMs}
                 formatUSD={formatUSD}
@@ -106,6 +90,15 @@ export default function StreamGrid() {
           );
         })}
       </div>
+
+      {/* BetBottomSheet for mobile */}
+      <BetBottomSheet
+        show={showSheet}
+        onClose={() => setShowSheet(false)}
+        market={selectedMarket}
+        stream={selectedStream}
+        selectedSide={selectedSide}
+      />
     </div>
   );
 }
