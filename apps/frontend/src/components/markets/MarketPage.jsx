@@ -146,7 +146,7 @@ export default function MarketPage() {
           </div>
 
           {/* Carousel dots */}
-          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex justify-center gap-1.5 z-10">
+          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex justify-center gap-1.5 z-10">
             {carouselStreams.map((_, index) => (
               <button
                 key={index}
