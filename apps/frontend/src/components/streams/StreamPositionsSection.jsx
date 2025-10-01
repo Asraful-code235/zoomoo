@@ -1,9 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  formatCents,
-  formatCurrency,
-  parseSide,
-} from "./streamFormatting";
+import { formatCents, formatCurrency, parseSide } from "./streamFormatting";
 
 const PLACEHOLDER_POSITIONS = [
   {
@@ -99,9 +95,7 @@ const normalisePosition = (position, marketLookup) => {
   const noVolume = Number(market.no_volume ?? 0);
   const totalVolume = yesVolume + noVolume;
   const yesPrice =
-    totalVolume > 0
-      ? yesVolume / totalVolume
-      : Number(market.yes_price ?? 0.5);
+    totalVolume > 0 ? yesVolume / totalVolume : Number(market.yes_price ?? 0.5);
   const currentPrice = isYes ? yesPrice : 1 - yesPrice;
 
   const pnlValue = currentPrice * shares - amount;
@@ -184,57 +178,85 @@ export default function StreamPositionsSection({
       <div className="space-y-4">
         <div className="space-y-3 md:hidden">
           {tablePositions.map((row) => {
-            const pnlPositive = row.pnlValue >= 0;
-            const pnlAmount = toCurrency(Math.abs(row.pnlValue));
             const chancePercent = Math.min(
               100,
               Math.max(0, Math.round(row.priceCents ?? 0))
             );
+            const payout = row.size + row.pnlValue;
 
             return (
               <div
                 key={row.id}
-                className="rounded-[4px] border border-gray-200 bg-white dark:bg-gray-800 p-4"
+                className="rounded-[4px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-[4px] bg-blue-100 dark:bg-blue-900 text-sm font-semibold text-blue-700 dark:text-blue-300">
-                    {row.market.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                      {row.market}
-                    </p>
-                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {toCurrency(row.size)} • Entry {formatCents(row.entryCents)}
-                    </p>
-                  </div>
-                  <span
-                    className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold tracking-wide ${sideBadgeClass(
-                      row.side
-                    )}`}
-                  >
-                    {row.side}
-                  </span>
-                </div>
-
-                <div className="mt-4 flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.16em] text-gray-400 dark:text-gray-500">
-                      Chance
-                    </p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      {chancePercent}%
-                    </p>
-                  </div>
-                  <div className="text-right">
+                  {/* Left side: Hamster Icon */}
+                  <div className="flex flex-col items-center gap-2 flex-shrink-0">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-[8px] bg-blue-500 text-2xl">
+                      🐹
+                    </div>
                     <p
-                      className={`text-sm font-semibold ${
-                        pnlPositive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                      className={`text-sm font-medium ${
+                        row.side === "YES"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-rose-600 dark:text-rose-400"
                       }`}
                     >
-                      {`${pnlPositive ? "+" : "-"}${pnlAmount}`}
+                      {row.side === "YES" ? "Yes" : "No"}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">PnL</p>
+                  </div>
+
+                  {/* Right side: Question, Chance, and Payout */}
+                  <div className="flex-1 min-w-0 flex flex-col">
+                    {/* Top row: Question and Refresh */}
+                    <div className="flex items-start justify-between mb-2">
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 flex-1 pr-2">
+                        {row.market}
+                      </p>
+                      <button
+                        type="button"
+                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition flex-shrink-0"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="20"
+                          height="20"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Bottom row: Chance and Payout */}
+                    <div className="flex flex-col items-end">
+                      <p
+                        className={`text-sm font-medium flex items-center gap-1 ${
+                          row.side === "YES"
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-rose-600 dark:text-rose-400"
+                        }`}
+                      >
+                        {chancePercent}% chance
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="12"
+                          height="12"
+                          viewBox="0 0 12 12"
+                          fill="currentColor"
+                        >
+                          <path d="M6 2L10 10H2L6 2Z" />
+                        </svg>
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        Pays out {toCurrency(payout)}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -246,13 +268,13 @@ export default function StreamPositionsSection({
           <table className="w-full">
             <thead className=" dark:bg-[#141518] text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
               <tr className="dark:bg-transparent border-b">
-                <th className="px-4 py-3 text-left font-semibold">Market</th>
-                <th className="px-4 py-3 text-left font-semibold">Outcome</th>
-                <th className="px-4 py-3 text-left font-semibold">Size ($)</th>
-                <th className="px-4 py-3 text-left font-semibold">Entry</th>
-                <th className="px-4 py-3 text-left font-semibold">Shares</th>
-                <th className="px-4 py-3 text-left font-semibold">PnL</th>
-                <th className="px-4 py-3 text-right font-semibold">Action</th>
+                <th className=" py-3 text-left font-semibold">Market</th>
+                <th className=" py-3 text-left font-semibold">Outcome</th>
+                <th className=" py-3 text-left font-semibold">Size ($)</th>
+                <th className="py-3 text-left font-semibold">Entry</th>
+                <th className="py-3 text-left font-semibold">Shares</th>
+                <th className=" py-3 text-left font-semibold">PnL</th>
+                <th className="py-3 text-right font-semibold">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-[#18191d]">
@@ -261,9 +283,14 @@ export default function StreamPositionsSection({
                 const pnlAmount = toCurrency(Math.abs(row.pnlValue));
 
                 return (
-                  <tr key={row.id} className="transition-colors dark:hover:bg-[#18191d] ">
-                    <td className="px-4 py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
-                      <span className="line-clamp-1 leading-snug">{row.market}</span>
+                  <tr
+                    key={row.id}
+                    className="transition-colors dark:hover:bg-[#18191d] "
+                  >
+                    <td className=" py-3 text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <span className="line-clamp-1 leading-snug">
+                        {row.market}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       <span
@@ -285,7 +312,9 @@ export default function StreamPositionsSection({
                     </td>
                     <td
                       className={`px-4 py-3 text-sm font-semibold ${
-                        pnlPositive ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                        pnlPositive
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-rose-600 dark:text-rose-400"
                       }`}
                     >
                       {`${pnlPositive ? "+" : "-"}${pnlAmount}`}
@@ -369,25 +398,30 @@ export default function StreamPositionsSection({
         })}
       </div>
 
-      <div className="hidden overflow-hidden rounded-[4px]  bg-white dark:bg-gray-800 md:block">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 dark:bg-gray-900 text-xs font-semibold uppercase tracking-[0.12em] text-gray-500 dark:text-gray-400">
+      <div className="hidden overflow-hidden rounded-[4px] bg-white dark:bg-transparent md:block">
+        <table className="w-full">
+          <thead className=" dark:bg-[#141518] text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
             <tr>
-              <th className="px-6 py-3 text-left">Market</th>
-              <th className="px-6 py-3 text-left">Side</th>
-              <th className="px-6 py-3 text-left">Size ($)</th>
-              <th className="px-6 py-3 text-left">Shares</th>
-              <th className="px-6 py-3 text-right"></th>
+              <th className=" py-3 text-left">Market</th>
+              <th className=" py-3 text-left">Side</th>
+              <th className="py-3 text-left">Size ($)</th>
+              <th className="py-3 text-left">Shares</th>
+              <th className="py-3 text-right"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-700 bg-white dark:bg-gray-800">
             {tableOrders.map((row) => {
               return (
-                <tr key={row.id} className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
-                    <span className="line-clamp-2 leading-snug">{row.market}</span>
+                <tr
+                  key={row.id}
+                  className="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <td className=" py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <span className="line-clamp-2 leading-snug">
+                      {row.market}
+                    </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className=" py-4">
                     <span
                       className={`inline-flex min-w-[52px] items-center justify-center rounded border px-3 py-1.5 text-xs font-semibold tracking-wide ${sideBadgeClass(
                         row.side
@@ -396,10 +430,10 @@ export default function StreamPositionsSection({
                       {row.side}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <td className=" py-4 text-sm font-semibold text-gray-900 dark:text-gray-100">
                     {toCurrency(row.size)}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400">
+                  <td className=" py-4 text-sm text-gray-600 dark:text-gray-400">
                     {formatCents(row.priceCents)}
                   </td>
                   <td className="px-6 py-4 text-right">
@@ -444,7 +478,6 @@ export default function StreamPositionsSection({
         >
           Orders
         </button>
-
       </div>
       <div className="bg-white dark:bg-[#141518] px-4 md:px-6 pb-6">
         {activeTab === "positions" ? renderPositions() : renderOrders()}

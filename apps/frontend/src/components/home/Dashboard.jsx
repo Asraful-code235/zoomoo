@@ -53,10 +53,10 @@ export default function Dashboard() {
   return (
     <div className="w-full min-h-screen bg-white dark:bg-[#0D0F11] pb-12 pt-6">
       <div className="mx-auto w-full max-w-6xl px-4 md:px-6">
-        {/* Mobile-First Layout */}
-        <div className="space-y-6">
-          {/* User Profile Section */}
-          <section className="rounded-[4px] md:border border-gray-200 dark:border-gray-700 dark-card-bg p-4 md:p-6">
+        {/* Mobile Layout - Single Card */}
+        <div className="md:hidden space-y-6">
+          {/* User Profile Section - Mobile */}
+          <section className="rounded-[4px] border border-gray-200 dark:border-gray-700 dark-card-bg p-4">
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 {/* Profile Image */}
@@ -125,17 +125,17 @@ export default function Dashboard() {
             </div>
 
             {/* Stats Cards Section */}
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3">
               {METRIC_CARDS.map((card) => (
                 <div
                   key={card.label}
-                  className="flex flex-col rounded-[4px] border border-gray-200 dark:border-gray-700 dark-card-bg px-3 py-3 md:px-4 md:py-4"
+                  className="flex flex-col rounded-[4px] border border-gray-200 dark:border-gray-700 dark-card-bg px-3 py-3"
                 >
-                  <p className="text-[10px] md:text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
+                  <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">
                     {card.label}
                   </p>
                   <p
-                    className={`text-sm md:text-lg font-bold ${
+                    className={`text-sm font-bold ${
                       card.tone === "positive"
                         ? "text-emerald-600 dark:text-emerald-400"
                         : "text-gray-900 dark:text-gray-100"
@@ -148,8 +148,118 @@ export default function Dashboard() {
             </div>
           </section>
 
-          {/* Positions/Orders Section with Tabs */}
-          <section className="rounded-[4px] md:border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+          {/* Positions/Orders Section - Mobile */}
+          <section className="rounded-[4px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <StreamPositionsSection />
+          </section>
+        </div>
+
+        {/* Desktop Layout - Two Cards Side by Side */}
+        <div className="hidden md:block space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+            {/* Profile Card - Desktop */}
+            <section className="rounded-[4px] border border-gray-200 dark:border-gray-700 dark-card-bg p-6">
+              <div className="flex items-start justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  {/* Profile Image */}
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[12px] bg-gray-100 dark:bg-gray-700 overflow-hidden">
+                    <div className="text-2xl font-semibold text-gray-700 dark:text-gray-300">
+                      {PROFILE_INITIALS}
+                    </div>
+                  </div>
+                  <div className="flex flex-col">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      {USER_PROFILE.name}
+                    </h2>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                      {USER_PROFILE.handle}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400 transition"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M11.333 2L14 4.667l-9.333 9.333H2v-2.667L11.333 2z" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Stats Cards Section - Desktop 2x2 Grid */}
+              <div className="grid grid-cols-2 gap-3">
+                {METRIC_CARDS.map((card) => (
+                  <div
+                    key={card.label}
+                    className="flex flex-col"
+                  >
+                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                      {card.label}
+                    </p>
+                    <p
+                      className={`text-lg font-semibold ${
+                        card.tone === "positive"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-gray-900 dark:text-gray-100"
+                      }`}
+                    >
+                      {card.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* Wallet Card - Desktop */}
+            <section className="rounded-[4px] border border-gray-200 dark:border-gray-700 dark-card-bg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+                Wallet
+              </h3>
+
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+                {WALLET_DETAILS.note}
+              </p>
+
+              <div className="space-y-3">
+                <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                  Address
+                </p>
+                <div className="flex items-center justify-between gap-3 rounded-[4px] border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-4 py-3">
+                  <code className="text-sm text-gray-900 dark:text-gray-100 font-mono">
+                    {WALLET_DETAILS.address}
+                  </code>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={handleCopy}
+                      className="rounded-[4px] border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 transition hover:bg-gray-50 dark:hover:bg-gray-600"
+                    >
+                      Copy
+                    </button>
+                    <button
+                      type="button"
+                      className="rounded-[4px] border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-1.5 text-xs font-semibold text-gray-700 dark:text-gray-300 transition hover:bg-gray-50 dark:hover:bg-gray-600"
+                    >
+                      Export
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          {/* Positions/Orders Section - Desktop */}
+          <section className="rounded-[4px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
             <StreamPositionsSection />
           </section>
         </div>
