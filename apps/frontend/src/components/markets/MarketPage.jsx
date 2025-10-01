@@ -98,12 +98,12 @@ export default function MarketPage() {
 
   return (
     <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-8">
-      {/* Carousel: Video + Chart - Max height 372px */}
+      {/* Carousel: Video + Chart Card */}
       <div className="mb-6">
-        <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-sm overflow-hidden" style={{ maxHeight: "372px" }}>
+        <div className="relative bg-white dark:bg-gray-800 rounded shadow-md overflow-hidden">
           {/* Question at top */}
           <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-base md:text-lg font-semibold text-gray-900 dark:text-white line-clamp-1">
+            <h2 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white line-clamp-2">
               {currentCarouselMarket?.question ||
                 currentCarouselStream?.market_question ||
                 currentCarouselStream?.title ||
@@ -111,10 +111,10 @@ export default function MarketPage() {
             </h2>
           </div>
 
-          {/* Video + Chart Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0" style={{ height: "320px" }}>
-            {/* Left: Video */}
-            <div className="relative bg-black h-full">
+          {/* Video + Chart Grid - Mobile: stacked, Desktop: side-by-side */}
+          <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-0">
+            {/* Video Section */}
+            <div className="relative bg-black w-full h-[240px] lg:h-full">
               {currentCarouselStream?.playback_id ? (
                 <MuxPlayer
                   streamType="on-demand"
@@ -139,14 +139,14 @@ export default function MarketPage() {
               </div>
             </div>
 
-            {/* Right: Chart */}
-            <div className="h-full">
+            {/* Chart Section */}
+            <div className="w-full h-[280px] lg:h-auto">
               <MarketChart market={currentCarouselMarket} />
             </div>
           </div>
 
-          {/* Carousel dots */}
-          <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex justify-center gap-1.5 z-10">
+          {/* Carousel dots - positioned at bottom of card */}
+          <div className="flex justify-center gap-1.5 py-3 bg-white dark:bg-gray-800">
             {carouselStreams.map((_, index) => (
               <button
                 key={index}

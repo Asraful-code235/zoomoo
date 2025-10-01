@@ -8,7 +8,7 @@ import BetBottomSheet from "./markets/BetBottomSheet";
 import MarketHeader from "./markets/MarketHeader";
 import { LoadingState, EmptyState } from "./markets/LoadingState";
 
-export default function StreamGrid() {
+export default function StreamGrid({header='Markets'}) {
   const { authenticated, login, user } = usePrivy();
   const navigate = useNavigate();
   const [sortKey, setSortKey] = useState("trending");
@@ -62,7 +62,7 @@ export default function StreamGrid() {
 
   return (
     <div className="max-w-screen-2xl mx-auto px-6 md:px-8">
-      <MarketHeader refreshing={refreshing} sortKey={sortKey} setSortKey={setSortKey} />
+      <MarketHeader header={header} refreshing={refreshing} sortKey={sortKey} setSortKey={setSortKey} />
 
       {/* Desktop grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">

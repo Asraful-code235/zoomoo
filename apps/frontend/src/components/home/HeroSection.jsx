@@ -105,7 +105,7 @@ export default function HeroSection() {
             onClick={() => goToSlide(index)}
             className={`transition-all duration-300 rounded-full ${
               index === currentSlide
-                ? "w-8 h-2 bg-white dark:bg-white"
+                ? "w-8 h-2 bg-[#111827] dark:bg-white"
                 : "w-2 h-2 hover:bg-white dark:hover:bg-white"
             }`}
             style={index !== currentSlide ? { backgroundColor: '#D1D5DBCC' } : {}}

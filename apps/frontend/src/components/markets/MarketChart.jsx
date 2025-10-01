@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function MarketChart({ market, className = "" }) {
+export default function MarketChart({ market }) {
   const canvasRef = useRef(null);
   const [chartData, setChartData] = useState([]);
 
@@ -8,18 +8,36 @@ export default function MarketChart({ market, className = "" }) {
   useEffect(() => {
     const yesPrice = Number(market?.yes_price ?? 0.5);
     const noPrice = 1 - yesPrice;
-    
-    // Generate 50 data points with some randomness
-    const points = 50;
+
+    // Generate 1000 data points with heartbeat-like randomness
+    const points = 1000;
     const yesData = [];
     const noData = [];
-    
+
+    let currentYes = yesPrice;
+    let currentNo = noPrice;
+
     for (let i = 0; i < points; i++) {
-      const variance = (Math.random() - 0.5) * 0.1; // ±5% variance
-      yesData.push(Math.max(0, Math.min(1, yesPrice + variance)));
-      noData.push(Math.max(0, Math.min(1, noPrice - variance)));
+      // Create heartbeat-like pattern with varying volatility
+      const volatility = 0.02 + Math.random() * 0.03; // Random volatility between 2-5%
+      const trend = Math.sin(i / 50) * 0.01; // Subtle wave pattern
+
+      // Random walk with mean reversion
+      const yesChange = (Math.random() - 0.5) * volatility + trend;
+      const noChange = -yesChange; // Inverse relationship
+
+      currentYes = Math.max(0.1, Math.min(0.9, currentYes + yesChange));
+      currentNo = Math.max(0.1, Math.min(0.9, currentNo + noChange));
+
+      // Normalize to ensure they sum close to 1
+      const sum = currentYes + currentNo;
+      currentYes = currentYes / sum;
+      currentNo = currentNo / sum;
+
+      yesData.push(currentYes);
+      noData.push(currentNo);
     }
-    
+
     setChartData({ yesData, noData });
   }, [market]);
 
@@ -120,7 +138,6 @@ export default function MarketChart({ market, className = "" }) {
     ctx.font = "9px sans-serif";
     ctx.textAlign = "left";
 
-    const labels = [0, 25, 50, 75, 100];
     for (let i = 0; i <= 4; i++) {
       const y = (height / 4) * i;
       const percentage = 100 - (i * 25);
@@ -167,10 +184,10 @@ export default function MarketChart({ market, className = "" }) {
 
       {/* Bet buttons at bottom */}
       <div className="grid grid-cols-2 gap-2 p-3 pt-2">
-        <button className="py-2 px-3 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 rounded font-semibold text-xs hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors">
+        <button className="py-2 px-3 bg-[#ECECFD] text-[#009966] rounded font-semibold text-xs transition-colors">
           YES · {yesPct}¢
         </button>
-        <button className="py-2 px-3 bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400 rounded font-semibold text-xs hover:bg-rose-200 dark:hover:bg-rose-900/50 transition-colors">
+        <button className="py-2 px-3 bg-[#FFF1F2] text-[#FB2C36] rounded font-semibold text-xs  transition-colors">
           NO · {noPct}¢
         </button>
       </div>
