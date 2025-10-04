@@ -8,7 +8,7 @@ import Home from './components/home/Home'
 import Dashboard from './components/home/Dashboard'
 import AdminPanel from './components/AdminPanel'
 import Profile from './components/Profile'
-import StreamGrid from './components/StreamGrid'
+import Feed from './components/Feed'
 import MarketPage from './components/markets/MarketPage'
 import Welcome from './components/home/Welcome'
 import SingleStreamView from './components/streams/SingleStreamView'
@@ -50,8 +50,8 @@ function App() {
               element={<div className="pt-3 md:pt-4 pb-8"><Dashboard /></div>}
             />
             <Route
-              path="/streams"
-              element={<div className="pt-3 md:pt-4 pb-8"><StreamGrid /></div>}
+              path="/feed"
+              element={<div className="pt-3 md:pt-4 pb-8"><Feed /></div>}
             />
             <Route
               path="/market"
@@ -59,13 +59,13 @@ function App() {
             />
             <Route
               path="/streams/:streamId"
-              element={<div className="pt-3 md:pt-4 pb-8">{authenticated ? <SingleStreamView /> : <Welcome />}</div>}
+              element={<div className="pt-3 md:pt-4 pb-8"><SingleStreamView /></div>}
             />
             <Route path="/profile" element={authenticated ? <Profile /> : <Welcome />} />
             <Route path="/admin" element={authenticated ? <AdminPanel /> : <Welcome />} />
             <Route
               path="/leaderboard"
-              element={<div className="pt-3 md:pt-4 pb-8">{authenticated ? <Leaderboard /> : <Welcome />}</div>}
+              element={<div className="pt-3 md:pt-4 pb-8"><Leaderboard /></div>}
             />
             <Route
               path="/buy-coins"

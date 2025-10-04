@@ -43,7 +43,7 @@ export default function SortControls({ sortKey, setSortKey }) {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent"
+        className="inline-flex items-center gap-2 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 shadow-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 dark:focus:ring-gray-600 focus:border-transparent"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
       >
@@ -53,11 +53,11 @@ export default function SortControls({ sortKey, setSortKey }) {
       </button>
 
       <div
-        className={`absolute right-0 mt-2 w-44 rounded-lg border border-gray-200 bg-white shadow-lg transition-opacity z-10 ${
+        className={`absolute right-0 mt-2 w-44 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg transition-opacity z-10 ${
           isOpen ? 'visible opacity-100' : 'invisible opacity-0'
         }`}
       >
-        <ul role="listbox" className="py-1 text-sm text-gray-700">
+        <ul role="listbox" className="py-1 text-sm text-gray-700 dark:text-gray-300">
           {sortOptions.map((option) => {
             const isSelected = sortKey === option.value;
             return (
@@ -70,8 +70,8 @@ export default function SortControls({ sortKey, setSortKey }) {
                     setSortKey(option.value);
                     setIsOpen(false);
                   }}
-                  className={`flex w-full items-center px-4 py-2 text-left transition-colors hover:bg-gray-50 ${
-                    isSelected ? 'font-semibold text-gray-900' : ''
+                  className={`flex w-full items-center px-4 py-2 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 ${
+                    isSelected ? 'font-semibold text-gray-900 dark:text-white' : ''
                   }`}
                 >
                   {option.label}

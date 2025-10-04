@@ -21,7 +21,7 @@ export default function Navigation({ logo }) {
     () => [
       { to: "/", label: "Home", icon: Home },
       { to: "/market", label: "Market", icon: LineChart },
-      { to: "/streams", label: "Feed", icon: TrendingUp },
+      { to: "/feed", label: "Feed", icon: TrendingUp },
       { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
     ],
     []

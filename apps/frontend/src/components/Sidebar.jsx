@@ -27,7 +27,7 @@ export default function Sidebar({ logo }) {
 
   const navItems = [
     { to: "/market", label: "Market", icon: "/live.svg" },
-    { to: "/streams", label: "Feed", icon: "/feed.svg" },
+    { to: "/feed", label: "Feed", icon: "/feed.svg" },
     { to: "/leaderboard", label: "Leaderboard", icon: "/leaderboard.svg" },
     { to: "/dashboard", label: "Dashboard", icon: "/dashboard.svg" },
   ];

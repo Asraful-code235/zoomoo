@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 
-export default function MarketChart({ market }) {
+export default function MarketChart({ market, onBetClick }) {
   const canvasRef = useRef(null);
   const [chartData, setChartData] = useState([]);
 
@@ -97,20 +97,23 @@ export default function MarketChart({ market }) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || !chartData.yesData) return;
-    
+
     const ctx = canvas.getContext("2d");
     const { width, height } = canvas.getBoundingClientRect();
-    
+
     // Set canvas size for retina displays
     canvas.width = width * 2;
     canvas.height = height * 2;
     ctx.scale(2, 2);
-    
+
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
-    
+
+    // Detect dark mode
+    const isDarkMode = document.documentElement.classList.contains('dark');
+
     // Draw grid lines
-    ctx.strokeStyle = "#e5e7eb40";
+    ctx.strokeStyle = isDarkMode ? "#374151" : "#e5e7eb40";
     ctx.lineWidth = 0.5;
 
     // Horizontal grid lines (only 3 lines: 25%, 50%, 75%)
@@ -159,7 +162,7 @@ export default function MarketChart({ market }) {
     ctx.stroke();
 
     // Draw percentage labels (smaller, on left side)
-    ctx.fillStyle = "#9ca3af";
+    ctx.fillStyle = isDarkMode ? "#9ca3af" : "#6b7280";
     ctx.font = "9px sans-serif";
     ctx.textAlign = "left";
 
@@ -168,7 +171,7 @@ export default function MarketChart({ market }) {
       const percentage = 100 - (i * 25);
       ctx.fillText(`${percentage}%`, 2, y + 3);
     }
-    
+
   }, [chartData]);
 
   const yesPct = Math.round((chartData.yesData?.[chartData.yesData.length - 1] ?? 0.5) * 100);
@@ -209,10 +212,16 @@ export default function MarketChart({ market }) {
 
       {/* Bet buttons at bottom */}
       <div className="grid grid-cols-2 gap-2 p-3 pt-2">
-        <button className="py-2 px-3 bg-[#ECECFD] text-[#009966] rounded font-semibold text-xs transition-colors">
+        <button
+          onClick={() => onBetClick?.("YES")}
+          className="py-2 px-3 bg-[#ECECFD] dark:bg-emerald-900/30 text-[#009966] dark:text-emerald-400 rounded font-semibold text-xs transition-colors hover:bg-[#dcdcfd] dark:hover:bg-emerald-900/50"
+        >
           YES · {yesPct}¢
         </button>
-        <button className="py-2 px-3 bg-[#FFF1F2] text-[#FB2C36] rounded font-semibold text-xs  transition-colors">
+        <button
+          onClick={() => onBetClick?.("NO")}
+          className="py-2 px-3 bg-[#FFF1F2] dark:bg-rose-900/30 text-[#FB2C36] dark:text-rose-400 rounded font-semibold text-xs transition-colors hover:bg-[#ffe1e2] dark:hover:bg-rose-900/50"
+        >
           NO · {noPct}¢
         </button>
       </div>

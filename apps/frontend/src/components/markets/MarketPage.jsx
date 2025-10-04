@@ -100,9 +100,9 @@ export default function MarketPage() {
     <div className="max-w-screen-2xl mx-auto px-4 md:px-6 lg:px-8">
       {/* Carousel: Video + Chart Card */}
       <div className="mb-6">
-        <div className="relative bg-white dark:bg-gray-800 rounded shadow-md overflow-hidden">
+        <div className="relative bg-white dark:bg-gray-800 rounded shadow-md overflow-hidden border border-gray-200 dark:border-gray-700">
           {/* Question at top */}
-          <div className="px-4 py-3 ">
+          <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
             <h2 className="text-sm md:text-base font-semibold text-gray-900 dark:text-white line-clamp-2">
               {currentCarouselMarket?.question ||
                 currentCarouselStream?.market_question ||
@@ -112,7 +112,7 @@ export default function MarketPage() {
           </div>
 
           {/* Video + Chart Grid - Mobile: stacked, Desktop: side-by-side */}
-          <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-0 px-4">
+          <div className="flex flex-col lg:grid lg:grid-cols-2 lg:gap-0">
             {/* Video Section */}
             <div className="relative bg-black w-full h-[240px] lg:h-full">
               {currentCarouselStream?.playback_id ? (
@@ -146,7 +146,7 @@ export default function MarketPage() {
           </div>
 
           {/* Carousel dots - positioned at bottom of card */}
-          <div className="flex justify-center gap-1.5 py-3 bg-white dark:bg-gray-800">
+          <div className="flex justify-center gap-1.5 py-3 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
             {carouselStreams.map((_, index) => (
               <button
                 key={index}
